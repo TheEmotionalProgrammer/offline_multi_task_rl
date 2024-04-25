@@ -52,6 +52,5 @@ to find the optimal action in a given state ```obs```.
 ### Rendering Episodes
 Example code for rendering episodes can be found in ```render_episode.py```. You will need to additionaly install:
 ```
-pip install imageio pyvirtualdisplay
+pip install imageio
 ```
-(```pyvirtualdisplay``` is required to render states on headless servers.) 
