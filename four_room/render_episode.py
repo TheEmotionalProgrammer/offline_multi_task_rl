@@ -5,6 +5,8 @@ import numpy as np
 # from pyvirtualdisplay import Display  
 import dill
 import gymnasium as gym
+from shortest_path import find_all_action_values
+from utils import obs_to_state
 
 gym.register('MiniGrid-FourRooms-v1', FourRoomsEnv)
 
@@ -26,8 +28,15 @@ for i in range(len(train_config['topologies'])):
     done = False
     while not done:
         images.append(img)
-        # retrieve your action here
-        action = env.action_space.sample() # for example, just sample a random action
+
+        #IF U WANT TO TRY A RANDOM ACTION 
+        #action = env.action_space.sample() # for example, just sample a random action
+        
+        #IF U WANT TO TRY THE OPTIMAL ACTION 
+        state = obs_to_state(obs)
+        q_values = find_all_action_values(state[:2], state[2], state[3:5], state[5:], 0.99)
+        action = np.argmax(q_values)
+
         obs, reward, terminated, truncated, info = env.step(action)
         done = terminated or truncated
         img = env.render()

@@ -1,5 +1,5 @@
 import networkx as nx
-from four_room.env import FourRoomsEnv
+from env import FourRoomsEnv
 import numpy as np
 
 
