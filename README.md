@@ -1,1 +1,1 @@
-# offline_multi_task_rl
+# Offline Multi-Task RL
