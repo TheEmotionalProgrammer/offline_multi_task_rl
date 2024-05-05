@@ -1,0 +1,27 @@
+2024-05-05 11:32:23,219 INFO    MainThread:13417 [wandb_setup.py:_flush():76] Current SDK version is 0.16.6
+2024-05-05 11:32:23,220 INFO    MainThread:13417 [wandb_setup.py:_flush():76] Configure stats pid to 13417
+2024-05-05 11:32:23,220 INFO    MainThread:13417 [wandb_setup.py:_flush():76] Loading settings from /Users/isidorotamassia/.config/wandb/settings
+2024-05-05 11:32:23,220 INFO    MainThread:13417 [wandb_setup.py:_flush():76] Loading settings from /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/settings
+2024-05-05 11:32:23,220 INFO    MainThread:13417 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2024-05-05 11:32:23,220 INFO    MainThread:13417 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2024-05-05 11:32:23,220 INFO    MainThread:13417 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'four_room/sac_n_discrete.py', 'program_abspath': '/Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/sac_n_discrete.py', 'program': '/Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/sac_n_discrete.py'}
+2024-05-05 11:32:23,220 INFO    MainThread:13417 [wandb_setup.py:_flush():76] Applying login settings: {}
+2024-05-05 11:32:23,220 INFO    MainThread:13417 [wandb_init.py:_log_setup():521] Logging user logs to /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240505_113223-1e051092-4639-4e5f-a461-b5624e24008b/logs/debug.log
+2024-05-05 11:32:23,220 INFO    MainThread:13417 [wandb_init.py:_log_setup():522] Logging internal logs to /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240505_113223-1e051092-4639-4e5f-a461-b5624e24008b/logs/debug-internal.log
+2024-05-05 11:32:23,220 INFO    MainThread:13417 [wandb_init.py:init():561] calling init triggers
+2024-05-05 11:32:23,221 INFO    MainThread:13417 [wandb_init.py:init():568] wandb.init called with sweep_config: {}
+config: {'project': 'CORL', 'group': 'SAC-N', 'name': 'SAC-N-MiniGrid-FourRooms-v1-c8e3b98d', 'hidden_dim': 256, 'num_critics': 10, 'gamma': 0.99, 'tau': 0.005, 'actor_learning_rate': 0.0003, 'critic_learning_rate': 0.0003, 'alpha_learning_rate': 0.0003, 'max_action': 1.0, 'buffer_size': 1000000, 'env_name': 'MiniGrid-FourRooms-v1', 'batch_size': 256, 'num_epochs': 3000, 'num_updates_on_epoch': 1000, 'normalize_reward': False, 'eval_episodes': 10, 'eval_every': 5, 'checkpoints_path': None, 'deterministic_torch': False, 'train_seed': 10, 'eval_seed': 42, 'log_every': 100, 'device': 'cpu'}
+2024-05-05 11:32:23,221 INFO    MainThread:13417 [wandb_init.py:init():611] starting backend
+2024-05-05 11:32:23,221 INFO    MainThread:13417 [wandb_init.py:init():615] setting up manager
+2024-05-05 11:32:23,223 INFO    MainThread:13417 [backend.py:_multiprocessing_setup():105] multiprocessing start_methods=spawn,fork,forkserver, using: spawn
+2024-05-05 11:32:23,225 INFO    MainThread:13417 [wandb_init.py:init():623] backend started and connected
+2024-05-05 11:32:23,229 INFO    MainThread:13417 [wandb_init.py:init():715] updated telemetry
+2024-05-05 11:32:23,263 INFO    MainThread:13417 [wandb_init.py:init():748] communicating run to backend with 90.0 second timeout
+2024-05-05 11:32:23,703 INFO    MainThread:13417 [wandb_run.py:_on_init():2357] communicating current version
+2024-05-05 11:32:23,955 INFO    MainThread:13417 [wandb_run.py:_on_init():2366] got version response 
+2024-05-05 11:32:23,955 INFO    MainThread:13417 [wandb_init.py:init():799] starting run threads in backend
+2024-05-05 11:32:24,076 INFO    MainThread:13417 [wandb_run.py:_console_start():2335] atexit reg
+2024-05-05 11:32:24,076 INFO    MainThread:13417 [wandb_run.py:_redirect():2190] redirect: wrap_raw
+2024-05-05 11:32:24,076 INFO    MainThread:13417 [wandb_run.py:_redirect():2255] Wrapping output streams.
+2024-05-05 11:32:24,076 INFO    MainThread:13417 [wandb_run.py:_redirect():2280] Redirects installed.
+2024-05-05 11:32:24,077 INFO    MainThread:13417 [wandb_init.py:init():842] run started, returning control to user process

@@ -1,0 +1,294 @@
+2024-05-04 17:41:36,749 INFO    StreamThr :5513 [internal.py:wandb_internal():86] W&B internal server running at pid: 5513, started at: 2024-05-04 17:41:36.748150
+2024-05-04 17:41:36,749 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: status
+2024-05-04 17:41:36,751 INFO    WriterThread:5513 [datastore.py:open_for_write():87] open: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/run-93873812-9323-4611-a18e-e690b9514bcd.wandb
+2024-05-04 17:41:36,753 DEBUG   SenderThread:5513 [sender.py:send():379] send: header
+2024-05-04 17:41:36,777 DEBUG   SenderThread:5513 [sender.py:send():379] send: run
+2024-05-04 17:41:37,168 INFO    SenderThread:5513 [dir_watcher.py:__init__():211] watching files in: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files
+2024-05-04 17:41:37,168 INFO    SenderThread:5513 [sender.py:_start_run_threads():1124] run started: 93873812-9323-4611-a18e-e690b9514bcd with start time 1714837296.748405
+2024-05-04 17:41:37,183 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: check_version
+2024-05-04 17:41:37,183 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: check_version
+2024-05-04 17:41:37,381 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: run_start
+2024-05-04 17:41:37,387 DEBUG   HandlerThread:5513 [system_info.py:__init__():26] System info init
+2024-05-04 17:41:37,387 DEBUG   HandlerThread:5513 [system_info.py:__init__():41] System info init done
+2024-05-04 17:41:37,387 INFO    HandlerThread:5513 [system_monitor.py:start():194] Starting system monitor
+2024-05-04 17:41:37,387 INFO    SystemMonitor:5513 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-05-04 17:41:37,387 INFO    HandlerThread:5513 [system_monitor.py:probe():214] Collecting system info
+2024-05-04 17:41:37,388 INFO    SystemMonitor:5513 [interfaces.py:start():190] Started cpu monitoring
+2024-05-04 17:41:37,388 DEBUG   HandlerThread:5513 [system_info.py:probe():150] Probing system
+2024-05-04 17:41:37,389 INFO    SystemMonitor:5513 [interfaces.py:start():190] Started disk monitoring
+2024-05-04 17:41:37,390 INFO    SystemMonitor:5513 [interfaces.py:start():190] Started gpuapple monitoring
+2024-05-04 17:41:37,392 INFO    SystemMonitor:5513 [interfaces.py:start():190] Started memory monitoring
+2024-05-04 17:41:37,393 INFO    SystemMonitor:5513 [interfaces.py:start():190] Started network monitoring
+2024-05-04 17:41:37,397 DEBUG   HandlerThread:5513 [system_info.py:_probe_git():135] Probing git
+2024-05-04 17:41:37,431 DEBUG   HandlerThread:5513 [system_info.py:_probe_git():143] Probing git done
+2024-05-04 17:41:37,431 DEBUG   HandlerThread:5513 [system_info.py:probe():198] Probing system done
+2024-05-04 17:41:37,431 DEBUG   HandlerThread:5513 [system_monitor.py:probe():223] {'os': 'macOS-14.4.1-arm64-arm-64bit', 'python': '3.12.0', 'heartbeatAt': '2024-05-04T15:41:37.389108', 'startedAt': '2024-05-04T15:41:36.740843', 'docker': None, 'cuda': None, 'args': (), 'state': 'running', 'program': '/Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/sac_n_discrete.py', 'codePathLocal': 'sac_n_discrete.py', 'codePath': 'four_room/sac_n_discrete.py', 'git': {'remote': 'https://github.com/TheEmotionalProgrammer/offline_multi_task_rl.git', 'commit': 'c470c382a53eff359884b9fb3ff246bbb089a94a'}, 'email': 'isidorotamassia@gmail.com', 'root': '/Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl', 'host': 'Isidoros-MacBook-Air.local', 'username': 'isidorotamassia', 'executable': '/Users/isidorotamassia/.pyenv/versions/3.12.0/bin/python', 'cpu_count': 8, 'cpu_count_logical': 8, 'cpu_freq': {'current': 3504, 'min': 600, 'max': 3504}, 'cpu_freq_per_core': [{'current': 3504, 'min': 600, 'max': 3504}], 'disk': {'/': {'total': 460.4317207336426, 'used': 9.539287567138672}}, 'gpuapple': {'type': 'arm', 'vendor': 'Apple'}, 'memory': {'total': 24.0}}
+2024-05-04 17:41:37,431 INFO    HandlerThread:5513 [system_monitor.py:probe():224] Finished collecting system info
+2024-05-04 17:41:37,431 INFO    HandlerThread:5513 [system_monitor.py:probe():227] Publishing system info
+2024-05-04 17:41:37,432 INFO    HandlerThread:5513 [system_monitor.py:probe():229] Finished publishing system info
+2024-05-04 17:41:37,433 DEBUG   SenderThread:5513 [sender.py:send():379] send: files
+2024-05-04 17:41:37,434 INFO    SenderThread:5513 [sender.py:_save_file():1390] saving file wandb-metadata.json with policy now
+2024-05-04 17:41:37,483 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: python_packages
+2024-05-04 17:41:37,483 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: python_packages
+2024-05-04 17:41:37,484 DEBUG   SenderThread:5513 [sender.py:send():379] send: telemetry
+2024-05-04 17:41:37,484 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-04 17:41:37,485 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: stop_status
+2024-05-04 17:41:37,485 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: stop_status
+2024-05-04 17:41:37,718 DEBUG   SenderThread:5513 [sender.py:send():379] send: telemetry
+2024-05-04 17:41:38,174 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/requirements.txt
+2024-05-04 17:41:38,174 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:41:38,174 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/wandb-metadata.json
+2024-05-04 17:41:38,183 INFO    wandb-upload_0:5513 [upload_job.py:push():131] Uploaded file /var/folders/rl/8xp1m3ys63b81ky990sf1_nw0000gn/T/tmp4rb8hd68wandb/sbns8ny9-wandb-metadata.json
+2024-05-04 17:41:38,440 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: partial_history
+2024-05-04 17:41:38,441 DEBUG   SenderThread:5513 [sender.py:send():379] send: history
+2024-05-04 17:41:38,441 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: summary_record
+2024-05-04 17:41:38,442 INFO    SenderThread:5513 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-05-04 17:41:39,175 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_created():271] file/dir created: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/wandb-summary.json
+2024-05-04 17:41:40,180 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:41:41,786 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: status_report
+2024-05-04 17:41:42,187 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:41:44,196 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:41:44,414 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: partial_history
+2024-05-04 17:41:44,415 DEBUG   SenderThread:5513 [sender.py:send():379] send: history
+2024-05-04 17:41:44,415 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: summary_record
+2024-05-04 17:41:44,416 INFO    SenderThread:5513 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-05-04 17:41:45,202 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/wandb-summary.json
+2024-05-04 17:41:46,207 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:41:46,791 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: status_report
+2024-05-04 17:41:48,213 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:41:50,224 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:41:50,978 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: partial_history
+2024-05-04 17:41:50,979 DEBUG   SenderThread:5513 [sender.py:send():379] send: history
+2024-05-04 17:41:50,979 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: summary_record
+2024-05-04 17:41:50,980 INFO    SenderThread:5513 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-05-04 17:41:51,227 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/wandb-summary.json
+2024-05-04 17:41:51,837 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: status_report
+2024-05-04 17:41:52,233 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:41:52,489 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-04 17:41:52,490 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: stop_status
+2024-05-04 17:41:52,490 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: stop_status
+2024-05-04 17:41:54,244 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:41:56,254 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:41:56,928 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: status_report
+2024-05-04 17:41:57,294 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: partial_history
+2024-05-04 17:41:57,295 DEBUG   SenderThread:5513 [sender.py:send():379] send: history
+2024-05-04 17:41:57,295 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: summary_record
+2024-05-04 17:41:57,296 INFO    SenderThread:5513 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-05-04 17:41:58,264 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:41:58,264 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/wandb-summary.json
+2024-05-04 17:42:00,274 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:02,014 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: status_report
+2024-05-04 17:42:02,285 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:04,296 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:04,655 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: partial_history
+2024-05-04 17:42:04,656 DEBUG   SenderThread:5513 [sender.py:send():379] send: history
+2024-05-04 17:42:04,656 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: summary_record
+2024-05-04 17:42:04,657 INFO    SenderThread:5513 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-05-04 17:42:05,301 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/wandb-summary.json
+2024-05-04 17:42:06,307 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:07,034 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: status_report
+2024-05-04 17:42:07,313 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/config.yaml
+2024-05-04 17:42:07,494 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: stop_status
+2024-05-04 17:42:07,494 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-04 17:42:07,494 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: stop_status
+2024-05-04 17:42:08,318 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:10,330 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:11,164 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: partial_history
+2024-05-04 17:42:11,165 DEBUG   SenderThread:5513 [sender.py:send():379] send: history
+2024-05-04 17:42:11,165 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: summary_record
+2024-05-04 17:42:11,166 INFO    SenderThread:5513 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-05-04 17:42:11,335 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/wandb-summary.json
+2024-05-04 17:42:12,233 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: status_report
+2024-05-04 17:42:12,341 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:14,351 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:16,358 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:17,282 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: status_report
+2024-05-04 17:42:17,462 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: partial_history
+2024-05-04 17:42:17,462 DEBUG   SenderThread:5513 [sender.py:send():379] send: history
+2024-05-04 17:42:17,463 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: summary_record
+2024-05-04 17:42:17,463 INFO    SenderThread:5513 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-05-04 17:42:18,364 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:18,364 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/wandb-summary.json
+2024-05-04 17:42:20,374 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:22,374 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: status_report
+2024-05-04 17:42:22,381 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:22,496 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-04 17:42:22,499 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: stop_status
+2024-05-04 17:42:22,499 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: stop_status
+2024-05-04 17:42:24,131 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: partial_history
+2024-05-04 17:42:24,132 DEBUG   SenderThread:5513 [sender.py:send():379] send: history
+2024-05-04 17:42:24,132 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: summary_record
+2024-05-04 17:42:24,133 INFO    SenderThread:5513 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-05-04 17:42:24,392 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:24,392 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/wandb-summary.json
+2024-05-04 17:42:26,402 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:27,388 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: status_report
+2024-05-04 17:42:28,406 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:30,411 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:30,700 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: partial_history
+2024-05-04 17:42:30,701 DEBUG   SenderThread:5513 [sender.py:send():379] send: history
+2024-05-04 17:42:30,701 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: summary_record
+2024-05-04 17:42:30,702 INFO    SenderThread:5513 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-05-04 17:42:31,417 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/wandb-summary.json
+2024-05-04 17:42:32,424 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: status_report
+2024-05-04 17:42:32,425 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:34,435 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:36,446 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:37,398 DEBUG   SystemMonitor:5513 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-05-04 17:42:37,399 DEBUG   SenderThread:5513 [sender.py:send():379] send: telemetry
+2024-05-04 17:42:37,400 DEBUG   SenderThread:5513 [sender.py:send():379] send: stats
+2024-05-04 17:42:37,454 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: partial_history
+2024-05-04 17:42:37,455 DEBUG   SenderThread:5513 [sender.py:send():379] send: history
+2024-05-04 17:42:37,458 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: status_report
+2024-05-04 17:42:37,501 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-04 17:42:37,501 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: stop_status
+2024-05-04 17:42:37,633 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: summary_record
+2024-05-04 17:42:37,633 INFO    SenderThread:5513 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-05-04 17:42:37,633 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: stop_status
+2024-05-04 17:42:38,456 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:38,457 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/config.yaml
+2024-05-04 17:42:38,457 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/wandb-summary.json
+2024-05-04 17:42:40,461 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:42,472 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:42,633 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: status_report
+2024-05-04 17:42:44,180 DEBUG   SenderThread:5513 [sender.py:send():379] send: exit
+2024-05-04 17:42:44,180 INFO    SenderThread:5513 [sender.py:send_exit():586] handling exit code: 1
+2024-05-04 17:42:44,181 INFO    SenderThread:5513 [sender.py:send_exit():588] handling runtime: 66
+2024-05-04 17:42:44,182 INFO    SenderThread:5513 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-05-04 17:42:44,182 INFO    SenderThread:5513 [sender.py:send_exit():594] send defer
+2024-05-04 17:42:44,182 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: defer
+2024-05-04 17:42:44,182 INFO    HandlerThread:5513 [handler.py:handle_request_defer():172] handle defer: 0
+2024-05-04 17:42:44,183 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: defer
+2024-05-04 17:42:44,183 INFO    SenderThread:5513 [sender.py:send_request_defer():610] handle sender defer: 0
+2024-05-04 17:42:44,183 INFO    SenderThread:5513 [sender.py:transition_state():614] send defer: 1
+2024-05-04 17:42:44,183 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: defer
+2024-05-04 17:42:44,183 INFO    HandlerThread:5513 [handler.py:handle_request_defer():172] handle defer: 1
+2024-05-04 17:42:44,183 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: defer
+2024-05-04 17:42:44,183 INFO    SenderThread:5513 [sender.py:send_request_defer():610] handle sender defer: 1
+2024-05-04 17:42:44,183 INFO    SenderThread:5513 [sender.py:transition_state():614] send defer: 2
+2024-05-04 17:42:44,183 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: defer
+2024-05-04 17:42:44,183 INFO    HandlerThread:5513 [handler.py:handle_request_defer():172] handle defer: 2
+2024-05-04 17:42:44,183 INFO    HandlerThread:5513 [system_monitor.py:finish():203] Stopping system monitor
+2024-05-04 17:42:44,184 DEBUG   SystemMonitor:5513 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-05-04 17:42:44,184 INFO    HandlerThread:5513 [interfaces.py:finish():202] Joined cpu monitor
+2024-05-04 17:42:44,184 DEBUG   SystemMonitor:5513 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-05-04 17:42:44,184 INFO    HandlerThread:5513 [interfaces.py:finish():202] Joined disk monitor
+2024-05-04 17:42:44,485 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:44,485 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/wandb-summary.json
+2024-05-04 17:42:44,745 INFO    HandlerThread:5513 [interfaces.py:finish():202] Joined gpuapple monitor
+2024-05-04 17:42:44,745 INFO    HandlerThread:5513 [interfaces.py:finish():202] Joined memory monitor
+2024-05-04 17:42:44,745 INFO    HandlerThread:5513 [interfaces.py:finish():202] Joined network monitor
+2024-05-04 17:42:44,746 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: defer
+2024-05-04 17:42:44,746 INFO    SenderThread:5513 [sender.py:send_request_defer():610] handle sender defer: 2
+2024-05-04 17:42:44,746 INFO    SenderThread:5513 [sender.py:transition_state():614] send defer: 3
+2024-05-04 17:42:44,746 DEBUG   SenderThread:5513 [sender.py:send():379] send: stats
+2024-05-04 17:42:44,746 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: defer
+2024-05-04 17:42:44,746 INFO    HandlerThread:5513 [handler.py:handle_request_defer():172] handle defer: 3
+2024-05-04 17:42:44,746 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: defer
+2024-05-04 17:42:44,746 INFO    SenderThread:5513 [sender.py:send_request_defer():610] handle sender defer: 3
+2024-05-04 17:42:44,746 INFO    SenderThread:5513 [sender.py:transition_state():614] send defer: 4
+2024-05-04 17:42:44,746 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: defer
+2024-05-04 17:42:44,746 INFO    HandlerThread:5513 [handler.py:handle_request_defer():172] handle defer: 4
+2024-05-04 17:42:44,746 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: defer
+2024-05-04 17:42:44,746 INFO    SenderThread:5513 [sender.py:send_request_defer():610] handle sender defer: 4
+2024-05-04 17:42:44,746 INFO    SenderThread:5513 [sender.py:transition_state():614] send defer: 5
+2024-05-04 17:42:44,746 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: defer
+2024-05-04 17:42:44,746 INFO    HandlerThread:5513 [handler.py:handle_request_defer():172] handle defer: 5
+2024-05-04 17:42:44,747 DEBUG   SenderThread:5513 [sender.py:send():379] send: summary
+2024-05-04 17:42:44,747 INFO    SenderThread:5513 [sender.py:_save_file():1390] saving file wandb-summary.json with policy end
+2024-05-04 17:42:44,747 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: defer
+2024-05-04 17:42:44,747 INFO    SenderThread:5513 [sender.py:send_request_defer():610] handle sender defer: 5
+2024-05-04 17:42:44,747 INFO    SenderThread:5513 [sender.py:transition_state():614] send defer: 6
+2024-05-04 17:42:44,747 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: defer
+2024-05-04 17:42:44,747 INFO    HandlerThread:5513 [handler.py:handle_request_defer():172] handle defer: 6
+2024-05-04 17:42:44,747 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: defer
+2024-05-04 17:42:44,747 INFO    SenderThread:5513 [sender.py:send_request_defer():610] handle sender defer: 6
+2024-05-04 17:42:44,748 INFO    SenderThread:5513 [sender.py:transition_state():614] send defer: 7
+2024-05-04 17:42:44,748 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: status_report
+2024-05-04 17:42:44,748 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: defer
+2024-05-04 17:42:44,748 INFO    HandlerThread:5513 [handler.py:handle_request_defer():172] handle defer: 7
+2024-05-04 17:42:44,748 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: defer
+2024-05-04 17:42:44,748 INFO    SenderThread:5513 [sender.py:send_request_defer():610] handle sender defer: 7
+2024-05-04 17:42:45,186 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: poll_exit
+2024-05-04 17:42:45,491 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/wandb-summary.json
+2024-05-04 17:42:46,398 INFO    SenderThread:5513 [sender.py:transition_state():614] send defer: 8
+2024-05-04 17:42:46,399 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: poll_exit
+2024-05-04 17:42:46,399 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: defer
+2024-05-04 17:42:46,400 INFO    HandlerThread:5513 [handler.py:handle_request_defer():172] handle defer: 8
+2024-05-04 17:42:46,400 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: defer
+2024-05-04 17:42:46,400 INFO    SenderThread:5513 [sender.py:send_request_defer():610] handle sender defer: 8
+2024-05-04 17:42:46,400 INFO    SenderThread:5513 [job_builder.py:build():318] Attempting to build job artifact
+2024-05-04 17:42:46,401 INFO    SenderThread:5513 [job_builder.py:_get_source_type():455] is repo sourced job
+2024-05-04 17:42:46,434 INFO    SenderThread:5513 [job_builder.py:build():431] adding wandb-job metadata file
+2024-05-04 17:42:46,436 INFO    SenderThread:5513 [sender.py:transition_state():614] send defer: 9
+2024-05-04 17:42:46,436 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: defer
+2024-05-04 17:42:46,436 DEBUG   SenderThread:5513 [sender.py:send():379] send: artifact
+2024-05-04 17:42:46,436 INFO    HandlerThread:5513 [handler.py:handle_request_defer():172] handle defer: 9
+2024-05-04 17:42:46,493 INFO    Thread-12 :5513 [dir_watcher.py:_on_file_modified():288] file/dir modified: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:47,163 INFO    SenderThread:5513 [sender.py:send_artifact():1468] sent artifact job-https___github.com_TheEmotionalProgrammer_offline_multi_task_rl.git_four_room_sac_n_discrete.py - {'id': 'QXJ0aWZhY3Q6ODIxMDYzMjEz', 'state': 'COMMITTED', 'artifactSequence': {'id': 'QXJ0aWZhY3RDb2xsZWN0aW9uOjE3MDUyOTI5NA==', 'latestArtifact': {'id': 'QXJ0aWZhY3Q6ODIxMDYzMjEz', 'versionIndex': 0}}}
+2024-05-04 17:42:47,163 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: defer
+2024-05-04 17:42:47,163 INFO    SenderThread:5513 [sender.py:send_request_defer():610] handle sender defer: 9
+2024-05-04 17:42:47,163 INFO    SenderThread:5513 [dir_watcher.py:finish():358] shutting down directory watcher
+2024-05-04 17:42:47,197 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: poll_exit
+2024-05-04 17:42:47,500 INFO    SenderThread:5513 [dir_watcher.py:finish():388] scan: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files
+2024-05-04 17:42:47,500 INFO    SenderThread:5513 [dir_watcher.py:finish():402] scan save: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/requirements.txt requirements.txt
+2024-05-04 17:42:47,501 INFO    SenderThread:5513 [dir_watcher.py:finish():402] scan save: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log output.log
+2024-05-04 17:42:47,505 INFO    SenderThread:5513 [dir_watcher.py:finish():402] scan save: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/config.yaml config.yaml
+2024-05-04 17:42:47,507 INFO    SenderThread:5513 [dir_watcher.py:finish():402] scan save: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/wandb-summary.json wandb-summary.json
+2024-05-04 17:42:47,508 INFO    SenderThread:5513 [dir_watcher.py:finish():402] scan save: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/wandb-metadata.json wandb-metadata.json
+2024-05-04 17:42:47,509 INFO    SenderThread:5513 [sender.py:transition_state():614] send defer: 10
+2024-05-04 17:42:47,509 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: poll_exit
+2024-05-04 17:42:47,511 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: defer
+2024-05-04 17:42:47,511 INFO    HandlerThread:5513 [handler.py:handle_request_defer():172] handle defer: 10
+2024-05-04 17:42:47,512 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: defer
+2024-05-04 17:42:47,512 INFO    SenderThread:5513 [sender.py:send_request_defer():610] handle sender defer: 10
+2024-05-04 17:42:47,512 INFO    SenderThread:5513 [file_pusher.py:finish():172] shutting down file pusher
+2024-05-04 17:42:47,898 INFO    wandb-upload_2:5513 [upload_job.py:push():131] Uploaded file /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/config.yaml
+2024-05-04 17:42:47,978 INFO    wandb-upload_1:5513 [upload_job.py:push():131] Uploaded file /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/output.log
+2024-05-04 17:42:47,999 INFO    wandb-upload_3:5513 [upload_job.py:push():131] Uploaded file /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/wandb-summary.json
+2024-05-04 17:42:48,005 INFO    wandb-upload_0:5513 [upload_job.py:push():131] Uploaded file /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/files/requirements.txt
+2024-05-04 17:42:48,203 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: poll_exit
+2024-05-04 17:42:48,204 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: poll_exit
+2024-05-04 17:42:48,209 INFO    Thread-11 (_thread_body):5513 [sender.py:transition_state():614] send defer: 11
+2024-05-04 17:42:48,210 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: defer
+2024-05-04 17:42:48,210 INFO    HandlerThread:5513 [handler.py:handle_request_defer():172] handle defer: 11
+2024-05-04 17:42:48,210 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: defer
+2024-05-04 17:42:48,210 INFO    SenderThread:5513 [sender.py:send_request_defer():610] handle sender defer: 11
+2024-05-04 17:42:48,210 INFO    SenderThread:5513 [file_pusher.py:join():178] waiting for file pusher
+2024-05-04 17:42:48,211 INFO    SenderThread:5513 [sender.py:transition_state():614] send defer: 12
+2024-05-04 17:42:48,212 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: defer
+2024-05-04 17:42:48,212 INFO    HandlerThread:5513 [handler.py:handle_request_defer():172] handle defer: 12
+2024-05-04 17:42:48,212 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: defer
+2024-05-04 17:42:48,212 INFO    SenderThread:5513 [sender.py:send_request_defer():610] handle sender defer: 12
+2024-05-04 17:42:48,212 INFO    SenderThread:5513 [file_stream.py:finish():614] file stream finish called
+2024-05-04 17:42:48,364 INFO    SenderThread:5513 [file_stream.py:finish():618] file stream finish is done
+2024-05-04 17:42:48,365 INFO    SenderThread:5513 [sender.py:transition_state():614] send defer: 13
+2024-05-04 17:42:48,365 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: defer
+2024-05-04 17:42:48,365 INFO    HandlerThread:5513 [handler.py:handle_request_defer():172] handle defer: 13
+2024-05-04 17:42:48,366 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: defer
+2024-05-04 17:42:48,366 INFO    SenderThread:5513 [sender.py:send_request_defer():610] handle sender defer: 13
+2024-05-04 17:42:48,366 INFO    SenderThread:5513 [sender.py:transition_state():614] send defer: 14
+2024-05-04 17:42:48,367 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: defer
+2024-05-04 17:42:48,367 DEBUG   SenderThread:5513 [sender.py:send():379] send: final
+2024-05-04 17:42:48,367 INFO    HandlerThread:5513 [handler.py:handle_request_defer():172] handle defer: 14
+2024-05-04 17:42:48,367 DEBUG   SenderThread:5513 [sender.py:send():379] send: footer
+2024-05-04 17:42:48,367 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: defer
+2024-05-04 17:42:48,367 INFO    SenderThread:5513 [sender.py:send_request_defer():610] handle sender defer: 14
+2024-05-04 17:42:48,368 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: poll_exit
+2024-05-04 17:42:48,368 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: poll_exit
+2024-05-04 17:42:48,368 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: poll_exit
+2024-05-04 17:42:48,369 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: server_info
+2024-05-04 17:42:48,369 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: get_summary
+2024-05-04 17:42:48,369 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: poll_exit
+2024-05-04 17:42:48,370 DEBUG   SenderThread:5513 [sender.py:send_request():406] send_request: server_info
+2024-05-04 17:42:48,370 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: sampled_history
+2024-05-04 17:42:48,372 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: internal_messages
+2024-05-04 17:42:48,507 INFO    MainThread:5513 [wandb_run.py:_footer_history_summary_info():3936] rendering history
+2024-05-04 17:42:48,508 INFO    MainThread:5513 [wandb_run.py:_footer_history_summary_info():3968] rendering summary
+2024-05-04 17:42:48,509 INFO    MainThread:5513 [wandb_run.py:_footer_sync_info():3895] logging synced files
+2024-05-04 17:42:48,509 DEBUG   HandlerThread:5513 [handler.py:handle_request():146] handle_request: shutdown
+2024-05-04 17:42:48,509 INFO    HandlerThread:5513 [handler.py:finish():866] shutting down handler
+2024-05-04 17:42:49,374 INFO    WriterThread:5513 [datastore.py:close():296] close: /Users/isidorotamassia/IDM-PROJ/offline_multi_task_rl/four_room/wandb/run-20240504_174136-93873812-9323-4611-a18e-e690b9514bcd/run-93873812-9323-4611-a18e-e690b9514bcd.wandb
+2024-05-04 17:42:49,512 INFO    SenderThread:5513 [sender.py:finish():1546] shutting down sender
+2024-05-04 17:42:49,512 INFO    SenderThread:5513 [file_pusher.py:finish():172] shutting down file pusher
+2024-05-04 17:42:49,512 INFO    SenderThread:5513 [file_pusher.py:join():178] waiting for file pusher
