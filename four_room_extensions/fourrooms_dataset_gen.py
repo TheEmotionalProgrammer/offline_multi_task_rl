@@ -2,12 +2,10 @@ import gymnasium as gym
 from typing import Any, Dict, List, Optional, Tuple, Union
 import numpy as np
 
-from os import sys
-sys.path.append('/Users/caroline/Desktop/projects/repos/')
-from env import FourRoomsEnv
-from wrappers import gym_wrapper
-from shortest_path import find_all_action_values
-from utils import obs_to_state
+from four_room.env import FourRoomsEnv
+from four_room.shortest_path import find_all_action_values
+from four_room.utils import obs_to_state
+from four_room.wrappers import gym_wrapper
 gym.register('MiniGrid-FourRooms-v1', FourRoomsEnv)
 
 

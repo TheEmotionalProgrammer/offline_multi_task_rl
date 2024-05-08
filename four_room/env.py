@@ -53,36 +53,6 @@ class FourRoomsEnv(MiniGridEnv):
     2. Timeout (see `max_steps`).
 
     """
-
-    
-
-class FourRoomsEnv(MiniGridEnv):
-    # Existing implementation...
-
-    def seed(self, seed=None):
-        """
-        Set the random seed for the environment's random number generators.
-        Useful for reproducing results.
-
-        Parameters:
-        seed (int): The seed to use. If None, a random seed will be used.
-        """
-        # Set the seed for numpy's random number generator
-        if seed is not None:
-            # Use a SeedSequence to ensure that subsequent uses of RNGs are independent
-            self.np_random = np.random.default_rng(np.random.SeedSequence(seed))
-        else:
-            # Create a default random generator without a fixed seed
-            self.np_random = np.random.default_rng()
-
-        # Seed the random module from Python's standard library
-        random.seed(seed)
-
-        # Return the actual seed used
-        return [seed]
-
-
-
     @staticmethod
     def valid_positions(size):
         """
