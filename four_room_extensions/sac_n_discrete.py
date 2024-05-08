@@ -18,16 +18,13 @@ import torch.nn as nn
 import wandb
 from torch.distributions import Normal
 from tqdm import trange
+from torch.functional import F
 
-from os import sys
-#put the path to the directory that contains your four-rooms repo here!
-sys.path.append('/Users/caroline/Desktop/projects/repos/')
-from env import FourRoomsEnv
-from wrappers import gym_wrapper
+from four_room_extensions.fourrooms_dataset_gen import get_expert_dataset, get_random_dataset
+from four_room.env import FourRoomsEnv
+from four_room.wrappers import gym_wrapper
 gym.register('MiniGrid-FourRooms-v1', FourRoomsEnv)
 
-from fourrooms_dataset_gen import get_random_dataset
-from fourrooms_dataset_gen import get_expert_dataset
 
 @dataclass
 class TrainConfig:
@@ -48,7 +45,7 @@ class TrainConfig:
     buffer_size: int = 1_000_000
     env_name: str = "MiniGrid-FourRooms-v1"
     batch_size: int = 256
-    num_epochs: int = 10 #was 3000 before
+    num_epochs: int = 3000
     num_updates_on_epoch: int = 1000
     normalize_reward: bool = False
     # evaluation params
@@ -258,7 +255,7 @@ class Actor(nn.Module):
         policy_dist = torch.distributions.categorical.Categorical(probs=policy_probs)
 
         if deterministic:
-            action = torch.argmax(policy_probs) #was policiy_logits before, fixed (?)
+            action = torch.argmax(policy_probs) # TODO was policiy_logits before, fixed (?)
         else:
             action = policy_dist.sample()
 
@@ -274,16 +271,16 @@ class Actor(nn.Module):
     def act(self, state: Any, device: str) -> np.ndarray:
         deterministic = not self.training
         #print(state)
-        
+
+        # TODO @isodor why is this added. Can you add a small explanation? So, we explain it to Caronline whenever needed
         if isinstance(state[-1], dict):
             state = state[:-1]
         observation = np.array(state)
 
         # Add a new axis to create a batch dimension
-        state = torch.tensor(observation, device=device, dtype=torch.float32).flatten()
+        state = torch.tensor(observation, device=device, dtype=torch.float32).flatten() # observation used instead of state
         action = self(state, deterministic=deterministic)[0].cpu().numpy()
         return action
-
 
 
 class VectorizedCritic(nn.Module):
@@ -364,7 +361,7 @@ class SACN:
 
         return loss
 
-    def _actor_loss(self, state: torch.Tensor) -> Tuple[torch.Tensor, float, float]:
+    def _actor_loss(self, state: torch.Tensor) -> Tuple[torch.Tensor, float, float, torch.Tensor, float]:
         action, action_probs = self.actor(state, need_log_prob=True)
         q_value_dist = self.critic(state)
         assert q_value_dist.shape[0] == self.critic.num_critics
@@ -373,9 +370,12 @@ class SACN:
         q_value_std = q_value_dist.std(0).mean().item()
         batch_entropy = -torch.distributions.Categorical(probs = action_probs).entropy().mean().item()
 
+        # lambda added
+        lmbda = 2.5/q_value_dist.abs().mean().detach() #regularization term
+
         loss = (action_probs * (self.alpha * torch.log(action_probs) - q_value_min)).sum(-1).mean()
 
-        return loss, batch_entropy, q_value_std
+        return loss, batch_entropy, q_value_std, action, lmbda
 
     def _critic_loss(
         self,
@@ -417,7 +417,11 @@ class SACN:
         self.alpha = self.log_alpha.exp().detach()
 
         # Actor update
-        actor_loss, actor_batch_entropy, q_policy_std = self._actor_loss(state)
+        actor_loss, actor_batch_entropy, q_policy_std, chosen_act, lmbda = self._actor_loss(state)
+
+        #SAC + BEHAVIORAL CLONING
+        actor_loss = -lmbda * actor_loss + F.mse_loss(chosen_act, action.squeeze()) # FIXME, TODO chosen_act gives problems with backpropagation as it is stochastic. Either use reparametrization trick or use probs
+
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
         self.actor_optimizer.step()
@@ -487,12 +491,12 @@ def eval_actor(
         while not done:
             action = actor.act(state, device)
             state, reward, done, truncated, info = env.step(action)
-            
-            done = done or truncated
+
+            done = done or truncated    # TODO are we sure about this?
 
             # print("Reward: ", reward)
             # print("Done: ", done)
-            
+
             episode_reward += reward
         episode_rewards.append(episode_reward)
 
@@ -525,7 +529,7 @@ def modify_reward(dataset, env_name, max_episode_steps=1000):
 
 
 @pyrallis.wrap()
-def train(config: TrainConfig):
+def train(config: TrainConfig, random_or_expert_dataset: str = "expert"):
     set_seed(config.train_seed, deterministic_torch=config.deterministic_torch)
     wandb_init(asdict(config))
 
@@ -542,14 +546,14 @@ def train(config: TrainConfig):
 
     # Load whatever dataset you wish to use here, in d4rl format
     # I'm using a script that runs four-room with random actions and generates a dataset
-    #d4rl_dataset = d4rl.qlearning_dataset(eval_env)
-
-    #d4rl_dataset = get_random_dataset() #random
-    d4rl_dataset = get_expert_dataset() #expert
-
+    # train_dataset = qlearning_dataset(eval_env)
+    if "random" in random_or_expert_dataset.lower():
+        train_dataset = get_random_dataset()
+    else:
+        d4rl_dataset = get_expert_dataset()
 
     if config.normalize_reward:
-        modify_reward(d4rl_dataset, config.env_name)
+        modify_reward(train_dataset, config.env_name)
 
     buffer = ReplayBuffer(
         state_dim=state_dim,
@@ -557,7 +561,7 @@ def train(config: TrainConfig):
         buffer_size=config.buffer_size,
         device=config.device,
     )
-    buffer.load_d4rl_dataset(d4rl_dataset)
+    buffer.load_d4rl_dataset(train_dataset)
 
     # Actor & Critic setup
     actor = Actor(state_dim, num_actions, config.hidden_dim)
