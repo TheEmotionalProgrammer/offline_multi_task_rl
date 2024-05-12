@@ -3,3 +3,4 @@ networkx
 dill
 d3rlpy
 gymnasium
+wandb

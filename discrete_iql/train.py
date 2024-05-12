@@ -1,7 +1,5 @@
-
-
 import gym
-import pybullet_envs
+# import pybullet_envs
 import numpy as np
 from collections import deque
 import torch
@@ -9,9 +7,11 @@ import wandb
 import argparse
 from buffer import ReplayBuffer
 import glob
+
 from utils import save, collect_random
 import random
 from agent import IQL
+
 
 def get_config():
     parser = argparse.ArgumentParser(description='RL')
@@ -27,6 +27,7 @@ def get_config():
     args = parser.parse_args()
     return args
 
+
 def train(config):
     np.random.seed(config.seed)
     random.seed(config.seed)
@@ -37,7 +38,7 @@ def train(config):
     env.action_space.seed(config.seed)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    
+
     steps = 0
     average10 = deque(maxlen=10)
     
@@ -72,8 +73,6 @@ def train(config):
                 if done:
                     break
 
-            
-
             average10.append(rewards)
             print("Episode: {} | Reward: {} | Polciy Loss: {} | Steps: {}".format(i, rewards, policy_loss, steps,))
             
@@ -95,6 +94,7 @@ def train(config):
 
             if i % config.save_every == 0:
                 save(config, save_name="IQL", model=agent.actor_local, wandb=wandb, ep=0)
+
 
 if __name__ == "__main__":
     config = get_config()
