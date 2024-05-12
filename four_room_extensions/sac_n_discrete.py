@@ -550,7 +550,7 @@ def train(config: TrainConfig, random_or_expert_dataset: str = "expert"):
     if "random" in random_or_expert_dataset.lower():
         train_dataset = get_random_dataset()
     else:
-        d4rl_dataset = get_expert_dataset()
+        d4rl_dataset, _ = get_expert_dataset()
 
     if config.normalize_reward:
         modify_reward(train_dataset, config.env_name)
