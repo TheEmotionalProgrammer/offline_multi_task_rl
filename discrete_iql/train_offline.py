@@ -8,16 +8,19 @@ import torch
 import wandb
 
 from agent import IQL
+from discrete_iql.networks import Actor
 from four_room_extensions.fourrooms_dataset_gen import get_expert_dataset_iql
 from utils import save
+
+save_model = 0
 
 
 def get_config():
     parser = argparse.ArgumentParser(description='RL')
     parser.add_argument("--run_name", type=str, default="IQL", help="Run name, default: SAC")
-    parser.add_argument("--episodes", type=int, default=25, help="Number of episodes, default: 100")
+    parser.add_argument("--episodes", type=int, default=10, help="Number of episodes, default: 100")
     parser.add_argument("--seed", type=int, default=1, help="Seed, default: 1")
-    parser.add_argument("--save_every", type=int, default=100, help="Saves the network every x epochs, default: 25")
+    parser.add_argument("--save_every", type=int, default=10, help="Saves the network every x epochs, default: 25")
     parser.add_argument("--batch_size", type=int, default=512, help="Batch size, default: 256")
     parser.add_argument("--hidden_size", type=int, default=256, help="")
     parser.add_argument("--learning_rate", type=float, default=3e-4, help="")
@@ -42,9 +45,9 @@ def evaluate(env, policy, eval_runs=5):
         while True:
             action = policy.get_action(state, eval=True)
 
-            state, reward, done, truncated, _ = env.step(action)
+            state, reward, terminated, truncated, _ = env.step(action)
             rewards += reward
-            if done:
+            if terminated:
                 break
         reward_batch.append(rewards)
     return np.mean(reward_batch)
@@ -106,12 +109,17 @@ def train(config):
                 "Policy Loss": policy_loss,
                 "Value Loss": value_loss,
                 "Critic 1 Loss": critic1_loss,
-                "Critic 2 Loss": critic2_loss,
-                "Batches": batches,
-                "Episode": i})
+                "Critic 2 Loss": critic2_loss})
 
+            # works when developed mode on! (windows)
             if i % config.save_every == 0:
-                save(config, save_name="IQL", model=agent.actor_local, wandb=wandb, ep=0)
+                save(config, save_name="IQL", model=agent.actor_local, wandb=wandb, ep=config.episodes)
+
+
+def test_iql(config, state_size, action_size, hidden_size, device):
+    # TODO: use test config
+    model = Actor(state_size, action_size, hidden_size).to(device)
+    model.load_state_dict(torch.load(f"IQL_{config.episodes}.pth"))
 
 
 if __name__ == "__main__":

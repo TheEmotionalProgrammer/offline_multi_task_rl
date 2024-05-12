@@ -118,12 +118,14 @@ class IQL(nn.Module):
         critic1_loss.backward()
         clip_grad_norm_(self.critic1.parameters(), self.clip_grad_param)
         self.critic1_optimizer.step()
+
         # critic 2
         self.critic2_optimizer.zero_grad()
         critic2_loss.backward()
         clip_grad_norm_(self.critic2.parameters(), self.clip_grad_param)
         self.critic2_optimizer.step()
 
+        # TODO: hard or soft update?
         if self.step % self.hard_update_every == 0:
             # ----------------------- update target networks ----------------------- #
             self.hard_update(self.critic1, self.critic1_target)

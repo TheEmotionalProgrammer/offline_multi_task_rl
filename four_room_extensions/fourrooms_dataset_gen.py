@@ -106,5 +106,6 @@ def get_expert_dataset_iql(batch_size=256):
                                terminals_tensor)
 
     dataloader = DataLoader(tensordata, batch_size=batch_size, shuffle=True)
+    # len(dataloader.dataset) = 1000 (4 * 256 = 1024)
 
     return dataloader, env

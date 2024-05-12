@@ -4,3 +4,4 @@ dill
 d3rlpy
 gymnasium
 wandb
+torch
