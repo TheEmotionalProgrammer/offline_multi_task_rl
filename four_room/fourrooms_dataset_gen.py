@@ -4,10 +4,10 @@ import numpy as np
 
 from os import sys
 sys.path.append('/Users/caroline/Desktop/projects/repos/')
-from env import FourRoomsEnv
-from wrappers import gym_wrapper
-from shortest_path import find_all_action_values
-from utils import obs_to_state
+from .env import FourRoomsEnv
+from .wrappers import gym_wrapper
+from .shortest_path import find_all_action_values
+from .utils import obs_to_state
 gym.register('MiniGrid-FourRooms-v1', FourRoomsEnv)
 
 
@@ -57,7 +57,7 @@ def get_random_dataset():
         dataset[key] = np.array(dataset[key])
     return dataset
 
-def get_expert_dataset():
+def get_expert_dataset(num_steps=1000):
     env = wrap_env(gym_wrapper(gym.make(('MiniGrid-FourRooms-v1'))))
     observation, info = env.reset()
 
