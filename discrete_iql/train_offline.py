@@ -8,8 +8,9 @@ import torch
 import wandb
 
 from agent import IQL
+from discrete_iql.buffer import ReplayBuffer
 from discrete_iql.networks import Actor
-from four_room_extensions.fourrooms_dataset_gen import get_expert_dataset_iql
+from four_room_extensions.fourrooms_dataset_gen import get_expert_dataset
 from utils import save
 
 save_model = 0
@@ -18,10 +19,12 @@ save_model = 0
 def get_config():
     parser = argparse.ArgumentParser(description='RL')
     parser.add_argument("--run_name", type=str, default="IQL", help="Run name, default: SAC")
-    parser.add_argument("--episodes", type=int, default=10, help="Number of episodes, default: 100")
+    parser.add_argument("--episodes", type=int, default=50, help="Number of episodes, default: 100")
+    parser.add_argument("--num_updates_per_episode", type=int, default=4, help="Number of updates per episode, default: 100")
     parser.add_argument("--seed", type=int, default=1, help="Seed, default: 1")
     parser.add_argument("--save_every", type=int, default=10, help="Saves the network every x epochs, default: 25")
-    parser.add_argument("--batch_size", type=int, default=512, help="Batch size, default: 256")
+    parser.add_argument("--buffer_size", type=int, default=100_000, help="Maximal training dataset size, default: 100_000")
+    parser.add_argument("--batch_size", type=int, default=256, help="Batch size, default: 256")
     parser.add_argument("--hidden_size", type=int, default=256, help="")
     parser.add_argument("--learning_rate", type=float, default=3e-4, help="")
     parser.add_argument("--temperature", type=float, default=3, help="")
@@ -58,12 +61,19 @@ def train(config):
     random.seed(config.seed)
     torch.manual_seed(config.seed)
 
-    dataloader, env = get_expert_dataset_iql()
+    # Load the dataset
+    dataset, env = get_expert_dataset()
 
     env.action_space.seed(config.seed)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print("Device: ", device)
+
+    # Initialize the replay buffer
+    buffer = ReplayBuffer(buffer_size=config.buffer_size, batch_size=config.batch_size, device=device)
+
+    for i in range(len(dataset["observations"])):
+        buffer.add(dataset["observations"][i], dataset["actions"][i], dataset["rewards"][i], dataset["next_observations"][i], dataset["terminals"][i])
 
     batches = 0
     average10 = deque(maxlen=10)
@@ -84,14 +94,8 @@ def train(config):
         eval_reward = evaluate(env, agent)
         wandb.log({"Test Reward": eval_reward, "Episode": 0, "Batches": batches}, step=batches)
         for i in range(1, config.episodes + 1):
-
-            for batch_idx, experience in enumerate(dataloader):
-                states, actions, rewards, next_states, dones = experience
-                states = states.to(device)
-                actions = actions.to(device)
-                rewards = rewards.to(device)
-                next_states = next_states.to(device)
-                dones = dones.to(device)
+            for _ in range(config.num_updates_per_episode):
+                states, actions, rewards, next_states, dones = buffer.sample()
                 policy_loss, critic1_loss, critic2_loss, value_loss = agent.learn(
                     (states, actions, rewards, next_states, dones))
                 batches += 1
@@ -112,8 +116,8 @@ def train(config):
                 "Critic 2 Loss": critic2_loss})
 
             # works when developed mode on! (windows)
-            if i % config.save_every == 0:
-                save(config, save_name="IQL", model=agent.actor_local, wandb=wandb, ep=config.episodes)
+            # if i % config.save_every == 0:
+            #     save(config, save_name="IQL", model=agent.actor_local, wandb=wandb, ep=config.episodes)
 
 
 def test_iql(config, state_size, action_size, hidden_size, device):
