@@ -20,7 +20,7 @@ from torch.distributions import Normal
 from tqdm import trange
 from torch.functional import F
 
-from four_room_extensions.fourrooms_dataset_gen import get_expert_dataset, get_random_dataset
+from .fourrooms_dataset_gen import get_expert_dataset, get_random_dataset
 from four_room.env import FourRoomsEnv
 from four_room.wrappers import gym_wrapper
 gym.register('MiniGrid-FourRooms-v1', FourRoomsEnv)
@@ -45,7 +45,7 @@ class TrainConfig:
     buffer_size: int = 1_000_000
     env_name: str = "MiniGrid-FourRooms-v1"
     batch_size: int = 256
-    num_epochs: int = 3000
+    num_epochs: int = 10
     num_updates_on_epoch: int = 1000
     normalize_reward: bool = False
     # evaluation params
@@ -330,6 +330,7 @@ class SACN:
         tau: float = 0.005,
         alpha_learning_rate: float = 1e-4,
         device: str = "cpu",
+        bc: bool = True, #set to True to use behavioral cloning regularization
     ):
         self.device = device
 
@@ -351,6 +352,8 @@ class SACN:
         )
         self.alpha_optimizer = torch.optim.Adam([self.log_alpha], lr=alpha_learning_rate)
         self.alpha = self.log_alpha.exp().detach()
+
+        self.bc = bc
 
     def _alpha_loss(self, state: torch.Tensor) -> torch.Tensor:
         with torch.no_grad():
@@ -375,7 +378,7 @@ class SACN:
 
         loss = (action_probs * (self.alpha * torch.log(action_probs) - q_value_min)).sum(-1).mean()
 
-        return loss, batch_entropy, q_value_std, action, lmbda
+        return loss, batch_entropy, q_value_std, action_probs, lmbda
 
     def _critic_loss(
         self,
@@ -417,10 +420,10 @@ class SACN:
         self.alpha = self.log_alpha.exp().detach()
 
         # Actor update
-        actor_loss, actor_batch_entropy, q_policy_std, chosen_act, lmbda = self._actor_loss(state)
+        actor_loss, actor_batch_entropy, q_policy_std, action_probs, lmbda = self._actor_loss(state)
 
         #SAC + BEHAVIORAL CLONING
-        actor_loss = -lmbda * actor_loss + F.mse_loss(chosen_act, action.squeeze()) # FIXME, TODO chosen_act gives problems with backpropagation as it is stochastic. Either use reparametrization trick or use probs
+        actor_loss = actor_loss if not self.bc else actor_loss - torch.log(action_probs).mean()  # FIXME, TODO chosen_act gives problems with backpropagation as it is stochastic. Either use reparametrization trick or use probs
 
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
@@ -448,6 +451,8 @@ class SACN:
             "alpha": self.alpha.item(),
             "q_policy_std": q_policy_std,
             "q_random_std": q_random_std,
+            "reward": reward.mean().item(),
+            
         }
         return update_info
 
@@ -478,7 +483,8 @@ class SACN:
 def eval_actor(
     env: gym.Env, actor: Actor, device: str, n_episodes: int, seed: int
 ) -> np.ndarray:
-    env.seed(seed)
+    #env.seed(seed)
+    env.reset(seed=seed)
     actor.eval()
     episode_rewards = []
     print("Evaluating actor...")
@@ -550,7 +556,7 @@ def train(config: TrainConfig, random_or_expert_dataset: str = "expert"):
     if "random" in random_or_expert_dataset.lower():
         train_dataset = get_random_dataset()
     else:
-        d4rl_dataset = get_expert_dataset()
+        train_dataset = get_expert_dataset()
 
     if config.normalize_reward:
         modify_reward(train_dataset, config.env_name)
