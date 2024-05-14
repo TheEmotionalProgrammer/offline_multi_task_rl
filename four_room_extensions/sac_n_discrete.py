@@ -258,6 +258,7 @@ class Actor(nn.Module):
             action = torch.argmax(policy_probs) # TODO was policiy_logits before, fixed (?)
         else:
             action = policy_dist.sample()
+            
 
         # log_prob = None
         # if need_log_prob:
@@ -272,7 +273,7 @@ class Actor(nn.Module):
         deterministic = not self.training
         #print(state)
 
-        # TODO @isodor why is this added. Can you add a small explanation? So, we explain it to Caronline whenever needed
+        #There is an empty dict at the end of the first state tensor in caroline's original code for some reason, like ([state],{}), so I removed it otherwise nothing works
         if isinstance(state[-1], dict):
             state = state[:-1]
         observation = np.array(state)
@@ -421,9 +422,11 @@ class SACN:
 
         # Actor update
         actor_loss, actor_batch_entropy, q_policy_std, action_probs, lmbda = self._actor_loss(state)
-
+        #print(action.shape)
+        log_probs = torch.log(action_probs.gather(1, action.long().reshape(1,256)).squeeze(-1)) 
         #SAC + BEHAVIORAL CLONING
-        actor_loss = actor_loss if not self.bc else actor_loss - torch.log(action_probs).mean()  # FIXME, TODO chosen_act gives problems with backpropagation as it is stochastic. Either use reparametrization trick or use probs
+        #print(torch.log(action_probs).mean())
+        actor_loss = actor_loss if not self.bc else actor_loss - log_probs.mean()# FIXME, TODO chosen_act gives problems with backpropagation as it is stochastic. Either use reparametrization trick or use probs
 
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
@@ -491,12 +494,15 @@ def eval_actor(
     #print number of episode_rewards
     print("Number of eps: ", n_episodes)
     for i in range(n_episodes):
-        print("Episode: ", i)
+        
         state, done = env.reset(), False
         episode_reward = 0.0
         while not done:
             action = actor.act(state, device)
             state, reward, done, truncated, info = env.step(action)
+            if reward != 0:
+                print("Reward: ", reward)
+                print("Episode: ", i)
 
             done = done or truncated    # TODO are we sure about this?
 
