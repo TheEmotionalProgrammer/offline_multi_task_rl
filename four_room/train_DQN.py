@@ -15,7 +15,8 @@ from wrappers import gym_wrapper
 
 import gymnasium as gym
 from env import FourRoomsEnv
-♦
+
+
 class CNN(BaseFeaturesExtractor):
     """
     CNN from DQN nature paper:

@@ -161,11 +161,11 @@ def get_dataset_from_config(config, policy=0, render=False):
         dataset[key] = np.array(dataset[key])
     imageio.mimsave(f'rendered_episodes/rendered_episode_{"random" if policy else "expert"}.gif', [np.array(img) for i, img in enumerate(imgs) if i%1 == 0], duration=200) if render else None
 
-    return dataset, tasks_finished, tasks_failed
+    return dataset, env, tasks_finished, tasks_failed
 
 
-def get_config(path):
-    with open('../four_room/configs/fourrooms_train_config.pl', 'rb') as file:
+def get_config(config_data: str):
+    with open(f'../four_room/configs/fourrooms_{config_data}_config.pl', 'rb') as file:
         train_config = dill.load(file)
     file.close()
     return train_config

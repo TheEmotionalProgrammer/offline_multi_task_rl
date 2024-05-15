@@ -2,14 +2,16 @@
 import argparse
 import random
 from collections import deque
-
+import gymnasium as gym
 import numpy as np
 import torch
 import wandb
-
+from four_room.env import FourRoomsEnv
+from four_room.wrappers import gym_wrapper
+import four_room_extensions
 from agent import IQL
 from discrete_iql.networks import Actor
-from four_room_extensions.fourrooms_dataset_gen import get_expert_dataset
+from four_room_extensions.fourrooms_dataset_gen import get_expert_dataset, get_expert_dataset_from_config
 from four_room_extensions.sac_n_discrete import ReplayBuffer
 from utils import save
 
@@ -19,10 +21,10 @@ save_model = 0
 def get_config():
     parser = argparse.ArgumentParser(description='RL')
     parser.add_argument("--run_name", type=str, default="IQL", help="Run name, default: SAC")
-    parser.add_argument("--episodes", type=int, default=50, help="Number of episodes, default: 100")
-    parser.add_argument("--num_updates_per_episode", type=int, default=1000, help="Number of updates per episode, default: 100")
+    parser.add_argument("--episodes", type=int, default=25, help="Number of episodes, default: 100")
+    parser.add_argument("--num_updates_per_episode", type=int, default=500, help="Number of updates per episode, default: 100")
     parser.add_argument("--seed", type=int, default=1, help="Seed, default: 1")
-    parser.add_argument("--save_every", type=int, default=10, help="Saves the network every x epochs, default: 25")
+    parser.add_argument("--save_every", type=int, default=25, help="Saves the network every x epochs, default: 25")
     parser.add_argument("--buffer_size", type=int, default=100_000, help="Maximal training dataset size, default: 100_000")
     parser.add_argument("--batch_size", type=int, default=256, help="Batch size, default: 256")
     parser.add_argument("--hidden_size", type=int, default=256, help="")
@@ -36,31 +38,38 @@ def get_config():
     return args
 
 
-def evaluate(env, policy, eval_runs=5):
+def evaluate(policy, train_config, eval_runs=5):
     """
     Makes an evaluation run with the current policy
     """
     reward_batch = []
-    for i in range(eval_runs):
-        state = env.reset()
+    tasks_finished = 0
+    tasks_failed = 0
 
+    gym.register('MiniGrid-FourRooms-v1', FourRoomsEnv)
+    env = gym_wrapper(gym.make('MiniGrid-FourRooms-v1',
+                               agent_pos=train_config['agent positions'],
+                               goal_pos=train_config['goal positions'],
+                               doors_pos=train_config['topologies'],
+                               agent_dir=train_config['agent directions'],
+                               render_mode="rgb_array"))
+
+    for _ in range(eval_runs):
+        state = env.reset()
         rewards = 0
         while True:
             action = policy.get_action(state, eval=True)
-
             state, reward, terminated, truncated, _ = env.step(action)
-
-            # # Check negative reward
-            # if reward < 0:
-            #     print(action, reward, state, terminated, truncated)
-
             rewards += reward
-
+            if terminated:
+                tasks_finished += 1
+            if truncated:
+                tasks_failed += 1
             # Truncated gives reward
             if terminated or truncated:
                 break
         reward_batch.append(rewards)
-    return np.mean(reward_batch)
+    return np.mean(reward_batch), tasks_finished, tasks_failed
 
 
 def train(config):
@@ -69,11 +78,17 @@ def train(config):
     torch.manual_seed(config.seed)
 
     # Load the dataset
-    dataset, env = get_expert_dataset()
+    train_config = four_room_extensions.fourrooms_dataset_gen.get_config(config_data="train")
+    dataset, env, tasks_finished, tasks_failed = get_expert_dataset_from_config(train_config)
+    print("Train terminated: " + str(tasks_finished))
+    print("Train truncated: " + str(tasks_failed))
+
+    # dataset, env = get_expert_dataset()
 
     env.action_space.seed(config.seed)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # device = "cpu"
     print("Device: ", device)
 
     observations = env.observation_space.shape[0] * env.observation_space.shape[1] * env.observation_space.shape[2]
@@ -84,7 +99,7 @@ def train(config):
     buffer.load_d4rl_dataset(dataset)
 
     batches = 0
-    average10 = deque(maxlen=10)
+    average_reward = deque(maxlen=10)
 
     with wandb.init(project="IQL-offline", name=config.run_name, config=config):
 
@@ -98,12 +113,13 @@ def train(config):
         # expectile = config.expectile,
 
         wandb.watch(agent, log="gradients", log_freq=10)
-        eval_reward = evaluate(env, agent)
-        wandb.log({"Test Reward": eval_reward, "Episode": 0, "Batches": batches}, step=batches)
+        eval_reward, _, _ = evaluate(agent, train_config)
+        wandb.log({"Eval Reward": eval_reward, "Episode": 0}, step=batches)
         for i in range(1, config.episodes + 1):
             for _ in range(config.num_updates_per_episode):
                 states, actions, rewards, next_states, dones = buffer.sample(config.batch_size)
-                dones = torch.tensor(dones, dtype=torch.bool).to(device)
+                # dones = torch.tensor(dones, dtype=torch.bool).to(device)
+                dones = dones.clone().detach().to(device, dtype=torch.bool)
                 actions = torch.tensor([actions[i][0] for i in range(len(actions))]).unsqueeze(dim=0).to(device)
 
                 policy_loss, critic1_loss, critic2_loss, value_loss = agent.learn((states, actions, rewards,
@@ -111,15 +127,15 @@ def train(config):
                 batches += 1
 
             if i % config.eval_every == 0:
-                eval_reward = evaluate(env, agent)
-                wandb.log({"Test Reward": eval_reward, "Episode": i, "Batches": batches}, step=batches)
+                eval_reward, terminated, truncated = evaluate(agent, train_config)
+                wandb.log({"Eval Reward": eval_reward, "Episode": i}, step=batches)
 
-                average10.append(eval_reward)
-                print("Episode: {} | Reward: {} | Polciy Loss: {} | Batches: {}".format(i, eval_reward, policy_loss,
-                                                                                        batches))
+                average_reward.append(eval_reward)
+                print("Episode: {} | Reward: {} | Polciy Loss: {} | Batches: {} | terminated: {} | truncated {}".
+                      format(i, eval_reward, policy_loss, batches, terminated, truncated))
 
             wandb.log({
-                "Average10": np.mean(average10),
+                "Average Reward": np.mean(average_reward),
                 "Policy Loss": policy_loss,
                 "Value Loss": value_loss,
                 "Critic 1 Loss": critic1_loss,
@@ -129,13 +145,18 @@ def train(config):
             # if i % config.save_every == 0:
             #     save(config, save_name="IQL", model=agent.actor_local, wandb=wandb, ep=config.episodes)
 
+        # Testing
+        # test_iql(agent)
 
-def test_iql(config, state_size, action_size, hidden_size, device):
-    # TODO: use test config
-    model = Actor(state_size, action_size, hidden_size).to(device)
-    model.load_state_dict(torch.load(f"IQL_{config.episodes}.pth"))
+
+def test_iql(agent):
+    test_config = four_room_extensions.fourrooms_dataset_gen.get_config(config_data="test")
+    dataset, env, tasks_finished, tasks_failed = get_expert_dataset_from_config(test_config)
+    print("Test terminated: " + str(tasks_finished))
+    print("Test truncated: " + str(tasks_failed))
 
 
 if __name__ == "__main__":
     config = get_config()
     train(config)
+    # test_iql(config)

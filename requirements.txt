@@ -8,4 +8,5 @@ matplotlib
 scikit-learn
 imageio
 pyrallis
+stable_baselines3
 torch
