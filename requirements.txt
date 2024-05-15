@@ -3,3 +3,6 @@ networkx
 dill
 d3rlpy
 gymnasium
+matplotlib
+scikit-learn
+imageio
