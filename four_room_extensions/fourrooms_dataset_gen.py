@@ -106,7 +106,8 @@ def get_dataset_from_config(config, policy=0, render=False):
     specified in config as well as on the quality of the policy used to generate the dataset. If step_limit=True is
     used as argument the generation of data samples is stopped after num_steps steps. If all task in config are
     completed before num_steps a smaller dataset is returned. The policy argument takes an int, where 0=expert,
-    1=random.
+    1=random. Render gives a gif, showing how the dataset progresses. Comparable to this: https://minari.farama.org/datasets/minigrid/fourrooms/
+    
     '''
     gym.register('MiniGrid-FourRooms-v1', FourRoomsEnv)
     env = gym_wrapper(gym.make('MiniGrid-FourRooms-v1',
