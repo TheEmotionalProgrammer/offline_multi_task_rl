@@ -4,4 +4,8 @@ dill
 d3rlpy
 gymnasium
 wandb
+matplotlib
+scikit-learn
+imageio
+pyrallis
 torch
