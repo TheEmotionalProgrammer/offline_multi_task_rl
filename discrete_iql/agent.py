@@ -71,7 +71,7 @@ class IQL(nn.Module):
         exp_a = torch.min(exp_a, torch.FloatTensor([100.0]).to(states.device)).squeeze(-1)
 
         _, dist = self.actor_local.evaluate(states)
-        log_probs = dist.log_prob(actions.squeeze(-1))
+        log_probs = dist.log_prob(actions.squeeze())
         actor_loss = -(exp_a * log_probs).mean()
 
         return actor_loss

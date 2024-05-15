@@ -8,9 +8,9 @@ import torch
 import wandb
 
 from agent import IQL
-from discrete_iql.buffer import ReplayBuffer
 from discrete_iql.networks import Actor
 from four_room_extensions.fourrooms_dataset_gen import get_expert_dataset
+from four_room_extensions.sac_n_discrete import ReplayBuffer
 from utils import save
 
 save_model = 0
@@ -20,7 +20,7 @@ def get_config():
     parser = argparse.ArgumentParser(description='RL')
     parser.add_argument("--run_name", type=str, default="IQL", help="Run name, default: SAC")
     parser.add_argument("--episodes", type=int, default=50, help="Number of episodes, default: 100")
-    parser.add_argument("--num_updates_per_episode", type=int, default=4, help="Number of updates per episode, default: 100")
+    parser.add_argument("--num_updates_per_episode", type=int, default=1000, help="Number of updates per episode, default: 100")
     parser.add_argument("--seed", type=int, default=1, help="Seed, default: 1")
     parser.add_argument("--save_every", type=int, default=10, help="Saves the network every x epochs, default: 25")
     parser.add_argument("--buffer_size", type=int, default=100_000, help="Maximal training dataset size, default: 100_000")
@@ -49,8 +49,15 @@ def evaluate(env, policy, eval_runs=5):
             action = policy.get_action(state, eval=True)
 
             state, reward, terminated, truncated, _ = env.step(action)
+
+            # # Check negative reward
+            # if reward < 0:
+            #     print(action, reward, state, terminated, truncated)
+
             rewards += reward
-            if terminated:
+
+            # Truncated gives reward
+            if terminated or truncated:
                 break
         reward_batch.append(rewards)
     return np.mean(reward_batch)
@@ -69,18 +76,18 @@ def train(config):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print("Device: ", device)
 
-    # Initialize the replay buffer
-    buffer = ReplayBuffer(buffer_size=config.buffer_size, batch_size=config.batch_size, device=device)
+    observations = env.observation_space.shape[0] * env.observation_space.shape[1] * env.observation_space.shape[2]
 
-    for i in range(len(dataset["observations"])):
-        buffer.add(dataset["observations"][i], dataset["actions"][i], dataset["rewards"][i], dataset["next_observations"][i], dataset["terminals"][i])
+    # Initialize the replay buffer
+    buffer = ReplayBuffer(observations, env.action_space.n, config.buffer_size, device)
+
+    buffer.load_d4rl_dataset(dataset)
 
     batches = 0
     average10 = deque(maxlen=10)
 
     with wandb.init(project="IQL-offline", name=config.run_name, config=config):
 
-        observations = env.observation_space.shape[0] * env.observation_space.shape[1] * env.observation_space.shape[2]
         agent = IQL(state_size=observations,
                     action_size=env.action_space.n,
                     device=device)
@@ -95,9 +102,12 @@ def train(config):
         wandb.log({"Test Reward": eval_reward, "Episode": 0, "Batches": batches}, step=batches)
         for i in range(1, config.episodes + 1):
             for _ in range(config.num_updates_per_episode):
-                states, actions, rewards, next_states, dones = buffer.sample()
-                policy_loss, critic1_loss, critic2_loss, value_loss = agent.learn(
-                    (states, actions, rewards, next_states, dones))
+                states, actions, rewards, next_states, dones = buffer.sample(config.batch_size)
+                dones = torch.tensor(dones, dtype=torch.bool).to(device)
+                actions = torch.tensor([actions[i][0] for i in range(len(actions))]).unsqueeze(dim=0).to(device)
+
+                policy_loss, critic1_loss, critic2_loss, value_loss = agent.learn((states, actions, rewards,
+                                                                                   next_states, dones))
                 batches += 1
 
             if i % config.eval_every == 0:

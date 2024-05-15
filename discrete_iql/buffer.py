@@ -27,7 +27,12 @@ class ReplayBuffer:
 
     def sample(self):
         """Randomly sample a batch of experiences from memory."""
-        experiences = random.sample(self.memory, k=self.batch_size)
+        # experiences = random.sample(self.memory, k=self.batch_size)
+        if len(self.memory) < self.batch_size:
+            raise ValueError("Not enough elements in the buffer to sample a batch")
+
+        start_index = random.randint(0, len(self.memory) - self.batch_size)
+        experiences = [self.memory[i] for i in range(start_index, start_index + self.batch_size)]
 
         states = torch.from_numpy(np.stack([e.state for e in experiences if e is not None])).float().to(self.device)
         actions = torch.from_numpy(np.vstack([e.action for e in experiences if e is not None])).float().to(self.device)
