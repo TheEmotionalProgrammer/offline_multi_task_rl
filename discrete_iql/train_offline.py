@@ -146,14 +146,45 @@ def train(config):
             #     save(config, save_name="IQL", model=agent.actor_local, wandb=wandb, ep=config.episodes)
 
         # Testing
-        # test_iql(agent)
+        test_iql(agent)
 
 
 def test_iql(agent):
-    test_config = four_room_extensions.fourrooms_dataset_gen.get_config(config_data="test")
-    dataset, env, tasks_finished, tasks_failed = get_expert_dataset_from_config(test_config)
+    test_reachable_config = four_room_extensions.fourrooms_dataset_gen.get_config(config_data="test_100")
+    dataset, env, tasks_finished, tasks_failed = get_expert_dataset_from_config(test_reachable_config)
     print("Test terminated: " + str(tasks_finished))
     print("Test truncated: " + str(tasks_failed))
+
+    total_reward = 0
+
+    # TODO: the parameters don't match :(
+    # # Use the saved model
+    # observations = env.observation_space.shape[0] * env.observation_space.shape[1] * env.observation_space.shape[2]
+    # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    #
+    # agent = IQL(state_size=observations,
+    #             action_size=env.action_space.n,
+    #             device=device)
+    # agent.load_state_dict(torch.load(f"trained_models/IQL_{config.episodes}.pth"))
+
+    # Iterate through the test dataset
+    num_samples = len(dataset['observations'])
+    for i in range(num_samples):
+        state = dataset['observations'][i]
+        true_action = dataset['actions'][i]
+        reward = dataset['rewards'][i]
+        done = dataset['terminals'][i]
+
+        # Agent takes action
+        agent_action = agent.get_action(state, eval=True)
+
+        # Compare agent's action with the true action in the dataset
+        if agent_action == true_action:
+            total_reward += reward
+
+    avg_reward = total_reward / num_samples
+    print(f"Test Reward: {avg_reward}")
+    # wandb.log({"Test Reward": avg_reward})
 
 
 if __name__ == "__main__":
