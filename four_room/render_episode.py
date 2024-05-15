@@ -2,7 +2,6 @@ from env import FourRoomsEnv
 from wrappers import gym_wrapper
 import imageio
 import numpy as np
-# from pyvirtualdisplay import Display  
 import dill
 import gymnasium as gym
 from shortest_path import find_all_action_values
