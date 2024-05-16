@@ -10,7 +10,6 @@ from four_room.env import FourRoomsEnv
 from four_room.wrappers import gym_wrapper
 import four_room_extensions
 from agent import IQL
-from discrete_iql.networks import Actor
 from four_room_extensions.fourrooms_dataset_gen import get_expert_dataset, get_expert_dataset_from_config
 from four_room_extensions.sac_n_discrete import ReplayBuffer
 from utils import save
@@ -38,7 +37,7 @@ def get_config():
     return args
 
 
-def evaluate(policy, train_config, eval_runs=5):
+def evaluate(policy, eval_config, eval_runs=5, reachable=True):
     """
     Makes an evaluation run with the current policy
     """
@@ -48,13 +47,13 @@ def evaluate(policy, train_config, eval_runs=5):
 
     gym.register('MiniGrid-FourRooms-v1', FourRoomsEnv)
     env = gym_wrapper(gym.make('MiniGrid-FourRooms-v1',
-                               agent_pos=train_config['agent positions'],
-                               goal_pos=train_config['goal positions'],
-                               doors_pos=train_config['topologies'],
-                               agent_dir=train_config['agent directions'],
+                               agent_pos=eval_config['agent positions'],
+                               goal_pos=eval_config['goal positions'],
+                               doors_pos=eval_config['topologies'],
+                               agent_dir=eval_config['agent directions'],
                                render_mode="rgb_array"))
 
-    for _ in range(eval_runs):
+    for i in range(eval_runs):
         state = env.reset()
         rewards = 0
         while True:
@@ -69,6 +68,12 @@ def evaluate(policy, train_config, eval_runs=5):
             if terminated or truncated:
                 break
         reward_batch.append(rewards)
+        if reachable:
+            wandb.log({"Test Reachable Reward": np.mean(reward_batch), "Episode": i + 1})
+            print("Test Run: {} | Test Reachable Reward: {}".format(i + 1, np.mean(reward_batch)))
+        else:
+            wandb.log({"Test Unreachable Reward": np.mean(reward_batch), "Episode": i + 1})
+            print("Test Run: {} | Test Unreachable Reward: {}".format(i + 1, np.mean(reward_batch)))
     return np.mean(reward_batch), tasks_finished, tasks_failed
 
 
@@ -146,48 +151,15 @@ def train(config):
             #     save(config, save_name="IQL", model=agent.actor_local, wandb=wandb, ep=config.episodes)
 
         # Testing
-        test_iql(agent)
+        test_reachable_config = four_room_extensions.fourrooms_dataset_gen.get_config(config_data="test_100")
+        _, test_terminated, test_truncated = evaluate(agent, test_reachable_config, eval_runs=40)
+        print("Terminated reachable: " + str(test_terminated) + " | Truncated reachable: " + str(test_truncated))
 
-
-def test_iql(agent):
-    test_reachable_config = four_room_extensions.fourrooms_dataset_gen.get_config(config_data="test_100")
-    dataset, env, tasks_finished, tasks_failed = get_expert_dataset_from_config(test_reachable_config)
-    print("Test terminated: " + str(tasks_finished))
-    print("Test truncated: " + str(tasks_failed))
-
-    total_reward = 0
-
-    # TODO: the parameters don't match :(
-    # # Use the saved model
-    # observations = env.observation_space.shape[0] * env.observation_space.shape[1] * env.observation_space.shape[2]
-    # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    #
-    # agent = IQL(state_size=observations,
-    #             action_size=env.action_space.n,
-    #             device=device)
-    # agent.load_state_dict(torch.load(f"trained_models/IQL_{config.episodes}.pth"))
-
-    # Iterate through the test dataset
-    num_samples = len(dataset['observations'])
-    for i in range(num_samples):
-        state = dataset['observations'][i]
-        true_action = dataset['actions'][i]
-        reward = dataset['rewards'][i]
-        done = dataset['terminals'][i]
-
-        # Agent takes action
-        agent_action = agent.get_action(state, eval=True)
-
-        # Compare agent's action with the true action in the dataset
-        if agent_action == true_action:
-            total_reward += reward
-
-    avg_reward = total_reward / num_samples
-    print(f"Test Reward: {avg_reward}")
-    # wandb.log({"Test Reward": avg_reward})
+        test_unreachable_config = four_room_extensions.fourrooms_dataset_gen.get_config(config_data="test_0")
+        _, test_terminated, test_truncated = evaluate(agent, test_unreachable_config, eval_runs=40, reachable=False)
+        print("Terminated unreachable: " + str(test_terminated) + " | Truncated unreachable: " + str(test_truncated))
 
 
 if __name__ == "__main__":
     config = get_config()
     train(config)
-    # test_iql(config)
