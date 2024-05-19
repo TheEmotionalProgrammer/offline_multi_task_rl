@@ -63,7 +63,7 @@ def get_random_dataset(num_steps: int = 1000):
     return dataset
 
 
-def get_expert_dataset():
+def get_expert_dataset(num_steps: int = 1000):
     """
     This function generates a dataset using the expert policy for the FourRooms environment.
     """
