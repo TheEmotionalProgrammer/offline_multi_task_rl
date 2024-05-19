@@ -50,7 +50,7 @@ class TrainConfig:
     normalize_reward: bool = False
     # evaluation params
     eval_episodes: int = 10
-    eval_every: int = 5
+    eval_every: int = 1
     # general params
     checkpoints_path: Optional[str] = None
     deterministic_torch: bool = False
@@ -454,7 +454,7 @@ class SACN:
             "alpha": self.alpha.item(),
             "q_policy_std": q_policy_std,
             "q_random_std": q_random_std,
-            "reward": reward.mean().item(),
+            "train_reward": reward.mean().item(),
             
         }
         return update_info
@@ -486,8 +486,7 @@ class SACN:
 def eval_actor(
     env: gym.Env, actor: Actor, device: str, n_episodes: int, seed: int
 ) -> np.ndarray:
-    #env.seed(seed)
-    env.reset(seed=seed)
+    env.seed(seed)
     actor.eval()
     episode_rewards = []
     print("Evaluating actor...")
@@ -503,6 +502,8 @@ def eval_actor(
             if reward != 0:
                 print("Reward: ", reward)
                 print("Episode: ", i)
+            if done:
+                print("Done: ", done)
 
             done = done or truncated    # TODO are we sure about this?
 
@@ -513,6 +514,8 @@ def eval_actor(
         episode_rewards.append(episode_reward)
 
     actor.train()
+    print("Evaluated actor.")
+    print("Episode rewards: ", episode_rewards)
     return np.array(episode_rewards)
 
 
@@ -626,9 +629,10 @@ def train(config: TrainConfig, random_or_expert_dataset: str = "expert"):
                 device=config.device,
             )
             eval_log = {
-                "eval/reward_mean": np.mean(eval_returns),
-                "eval/reward_std": np.std(eval_returns),
                 "epoch": epoch,
+                "eval/reward_mean": np.mean(eval_returns).item(),
+                "eval/reward_std": np.std(eval_returns).item(),
+                
             }
             if hasattr(eval_env, "get_normalized_score"):
                 normalized_score = eval_env.get_normalized_score(eval_returns) * 100.0
