@@ -137,6 +137,12 @@ def get_dataset_from_config(config, policy=0, render=False, render_name="") -> t
                 action = np.argmax(q_values)
             elif policy == 1:
                 action = env.action_space.sample()
+            elif policy == 2: #suboptimal policy, with a 70% chance of going in the right direction
+                state = obs_to_state(observation)
+                q_values = find_all_action_values(state[:2], state[2], state[3:5], state[5:], 0.99)
+                action = np.argmax(q_values)
+                if np.random.rand() < 0.15: # 15% chance of going in a random direction
+                    action = env.action_space.sample()
             else:
                 # implement default behaviour or return error, for now just uses random policy
                 action = env.action_space.sample()
@@ -177,6 +183,8 @@ def get_config(path):
 def get_expert_dataset_from_config(config, render=False, render_name=""):
     return get_dataset_from_config(config, policy=0, render=render, render_name=render_name)
 
-
 def get_random_dataset_from_config(config, render=False, render_name=""):
     return get_dataset_from_config(config, policy=1, render=render, render_name=render_name)
+
+def get_suboptimal_dataset_from_config(config, render=False, render_name=""):
+    return get_dataset_from_config(config, policy=2, render=render, render_name=render_name)
