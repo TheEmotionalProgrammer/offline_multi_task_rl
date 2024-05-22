@@ -20,17 +20,18 @@ save_model = 0
 def get_config():
     parser = argparse.ArgumentParser(description='RL')
     parser.add_argument("--run_name", type=str, default="IQL", help="Run name, default: SAC")
-    parser.add_argument("--episodes", type=int, default=20, help="Number of episodes, default: 100")
-    parser.add_argument("--num_updates_per_episode", type=int, default=5000, help="Number of updates per episode, default: 100")
+    parser.add_argument("--episodes", type=int, default=10, help="Number of episodes, default: 100")
+    parser.add_argument("--num_updates_per_episode", type=int, default=1000, help="Number of updates per episode, default: 100")
     parser.add_argument("--seed", type=int, default=1, help="Seed, default: 1")
     parser.add_argument("--save_every", type=int, default=25, help="Saves the network every x epochs, default: 25")
     parser.add_argument("--buffer_size", type=int, default=100_000, help="Maximal training dataset size, default: 100_000")
     parser.add_argument("--batch_size", type=int, default=256, help="Batch size, default: 256")
     parser.add_argument("--hidden_size", type=int, default=256, help="")
     parser.add_argument("--learning_rate", type=float, default=3e-4, help="")
-    parser.add_argument("--temperature", type=float, default=3, help="")
-    parser.add_argument("--expectile", type=float, default=0.7, help="")
+    parser.add_argument("--temperature", type=float, default=100, help="")  # 3 ?
+    parser.add_argument("--expectile", type=float, default=0.8, help="")  # in the paper it is 0.95
     parser.add_argument("--tau", type=float, default=5e-3, help="")
+    parser.add_argument("--weight_decay", type=float, default=1e-4, help="Weight decay for regularization")
     parser.add_argument("--eval_every", type=int, default=1, help="")
 
     args = parser.parse_args()
@@ -53,10 +54,7 @@ def evaluate(policy, eval_config, train=True, reachable=True):
                                agent_dir=eval_config['agent directions'],
                                render_mode="rgb_array"))
 
-    if train:
-        eval_runs = 5
-    else:
-        eval_runs = 40
+    eval_runs = 5 if train else 40
 
     num_steps_list = []
     for i in range(eval_runs):
@@ -88,9 +86,9 @@ def evaluate(policy, eval_config, train=True, reachable=True):
 
 
 def train(config):
-    np.random.seed(config.seed)
-    random.seed(config.seed)
-    torch.manual_seed(config.seed)
+    # np.random.seed(config.seed)
+    # random.seed(config.seed)
+    # torch.manual_seed(config.seed)
 
     # Load the dataset
     train_config = four_room_extensions.fourrooms_dataset_gen.get_config(config_data="train")
@@ -100,7 +98,8 @@ def train(config):
 
     # dataset, env = get_expert_dataset()
 
-    env.action_space.seed(config.seed)
+    # env.seed(config.seed)
+    # env.action_space.seed(config.seed)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     # device = "cpu"
@@ -114,18 +113,18 @@ def train(config):
     buffer.load_d4rl_dataset(dataset)
 
     batches = 0
-    average_reward = deque(maxlen=10)
 
     with wandb.init(project="IQL-offline", name=config.run_name, config=config):
 
         agent = IQL(state_size=observations,
                     action_size=env.action_space.n,
-                    device=device)
-        # learning_rate = config.learning_rate,
-        # hidden_size = config.hidden_size,
-        # tau = config.tau,
-        # temperature = config.temperature,
-        # expectile = config.expectile,
+                    device=device,
+                    learning_rate=config.learning_rate,
+                    hidden_size=config.hidden_size,
+                    tau=config.tau,
+                    temperature=config.temperature,
+                    expectile=config.expectile,
+                    weight_decay=config.weight_decay)
 
         wandb.watch(agent, log="gradients", log_freq=10)
         eval_reward, _, _, _ = evaluate(agent, train_config, train=True)
@@ -144,12 +143,10 @@ def train(config):
                 eval_reward, terminated, truncated, num_steps = evaluate(agent, train_config, train=True)
                 wandb.log({"Eval Reward": eval_reward, "Episode": i}, step=batches)
 
-                average_reward.append(eval_reward)
                 print("Episode: {} | Reward: {} | Polciy Loss: {} | Batches: {} | terminated: {} | truncated {} "
                       "| num_steps: {}".format(i, eval_reward, policy_loss, batches, terminated, truncated, num_steps))
 
             wandb.log({
-                "Average Reward": np.mean(average_reward),
                 "Policy Loss": policy_loss,
                 "Value Loss": value_loss,
                 "Critic 1 Loss": critic1_loss,

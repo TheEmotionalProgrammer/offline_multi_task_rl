@@ -9,7 +9,13 @@ class IQL(nn.Module):
     def __init__(self,
                  state_size,
                  action_size,
-                 device
+                 device,
+                 learning_rate=3e-4,
+                 hidden_size=256,
+                 tau=0.005,
+                 temperature=100,
+                 expectile=0.8,
+                 weight_decay=0.0
                  ):
         super(IQL, self).__init__()
         self.state_size = state_size
@@ -17,17 +23,27 @@ class IQL(nn.Module):
 
         self.device = device
 
-        self.gamma = torch.FloatTensor([0.99]).to(device)
+        self.gamma = torch.FloatTensor([0.9]).to(device)  # 0.99
         self.hard_update_every = 10
-        hidden_size = 256
-        learning_rate = 3e-4
+
+        self.soft_update_every = 1
+        self.tau = tau
+
+        # hidden_size = 256
+        self.hidden_size = hidden_size
+
+        # learning_rate = 3e-4
+        self.learning_rate = learning_rate
+        self.weight_decay = weight_decay
+
         self.clip_grad_param = 100
-        self.temperature = torch.FloatTensor([100]).to(device)
-        self.expectile = torch.FloatTensor([0.8]).to(device)
+
+        self.temperature = torch.FloatTensor([temperature]).to(self.device)
+        self.expectile = torch.FloatTensor([expectile]).to(self.device)
 
         # Actor Network
         self.actor_local = Actor(state_size, action_size, hidden_size).to(device)
-        self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=learning_rate)
+        self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
 
         # Critic Network (w/ Target Network)
         self.critic1 = Critic(state_size, action_size, hidden_size, 2).to(device)
@@ -41,15 +57,15 @@ class IQL(nn.Module):
         self.critic2_target = Critic(state_size, action_size, hidden_size).to(device)
         self.critic2_target.load_state_dict(self.critic2.state_dict())
 
-        self.critic1_optimizer = optim.Adam(self.critic1.parameters(), lr=learning_rate)
-        self.critic2_optimizer = optim.Adam(self.critic2.parameters(), lr=learning_rate)
+        self.critic1_optimizer = optim.Adam(self.critic1.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
+        self.critic2_optimizer = optim.Adam(self.critic2.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
 
         self.value_net = Value(state_size=state_size, hidden_size=hidden_size).to(device)
 
-        self.value_optimizer = optim.Adam(self.value_net.parameters(), lr=learning_rate)
+        self.value_optimizer = optim.Adam(self.value_net.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
         self.step = 0
 
-    def get_action(self, state, eval=False):
+    def get_action(self, state):
         """Returns actions for given state as per current policy."""
         if isinstance(state, tuple):
             state = state[0]
@@ -125,11 +141,17 @@ class IQL(nn.Module):
         clip_grad_norm_(self.critic2.parameters(), self.clip_grad_param)
         self.critic2_optimizer.step()
 
-        # TODO: hard or soft update?
-        if self.step % self.hard_update_every == 0:
+        # soft update
+        if self.step % self.soft_update_every == 0:
             # ----------------------- update target networks ----------------------- #
-            self.hard_update(self.critic1, self.critic1_target)
-            self.hard_update(self.critic2, self.critic2_target)
+            self.soft_update(self.critic1, self.critic1_target)
+            self.soft_update(self.critic2, self.critic2_target)
+
+        # # hard update
+        # if self.step % self.hard_update_every == 0:
+        #     # ----------------------- update target networks ----------------------- #
+        #     self.hard_update(self.critic1, self.critic1_target)
+        #     self.hard_update(self.critic2, self.critic2_target)
 
         return actor_loss.item(), critic1_loss.item(), critic2_loss.item(), value_loss.item()
 
