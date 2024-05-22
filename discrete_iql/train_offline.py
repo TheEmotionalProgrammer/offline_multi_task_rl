@@ -20,8 +20,8 @@ save_model = 0
 def get_config():
     parser = argparse.ArgumentParser(description='RL')
     parser.add_argument("--run_name", type=str, default="IQL", help="Run name, default: SAC")
-    parser.add_argument("--episodes", type=int, default=25, help="Number of episodes, default: 100")
-    parser.add_argument("--num_updates_per_episode", type=int, default=500, help="Number of updates per episode, default: 100")
+    parser.add_argument("--episodes", type=int, default=20, help="Number of episodes, default: 100")
+    parser.add_argument("--num_updates_per_episode", type=int, default=5000, help="Number of updates per episode, default: 100")
     parser.add_argument("--seed", type=int, default=1, help="Seed, default: 1")
     parser.add_argument("--save_every", type=int, default=25, help="Saves the network every x epochs, default: 25")
     parser.add_argument("--buffer_size", type=int, default=100_000, help="Maximal training dataset size, default: 100_000")
@@ -37,7 +37,7 @@ def get_config():
     return args
 
 
-def evaluate(policy, eval_config, eval_runs=5, reachable=True):
+def evaluate(policy, eval_config, train=True, reachable=True):
     """
     Makes an evaluation run with the current policy
     """
@@ -53,12 +53,20 @@ def evaluate(policy, eval_config, eval_runs=5, reachable=True):
                                agent_dir=eval_config['agent directions'],
                                render_mode="rgb_array"))
 
+    if train:
+        eval_runs = 5
+    else:
+        eval_runs = 40
+
+    num_steps_list = []
     for i in range(eval_runs):
         state = env.reset()
         rewards = 0
+        num_steps = 0
         while True:
-            action = policy.get_action(state, eval=True)
+            action = policy.get_action(state)
             state, reward, terminated, truncated, _ = env.step(action)
+            num_steps += 1
             rewards += reward
             if terminated:
                 tasks_finished += 1
@@ -68,13 +76,15 @@ def evaluate(policy, eval_config, eval_runs=5, reachable=True):
             if terminated or truncated:
                 break
         reward_batch.append(rewards)
-        if reachable:
-            wandb.log({"Test Reachable Reward": np.mean(reward_batch), "Episode": i + 1})
-            print("Test Run: {} | Test Reachable Reward: {}".format(i + 1, np.mean(reward_batch)))
-        else:
-            wandb.log({"Test Unreachable Reward": np.mean(reward_batch), "Episode": i + 1})
-            print("Test Run: {} | Test Unreachable Reward: {}".format(i + 1, np.mean(reward_batch)))
-    return np.mean(reward_batch), tasks_finished, tasks_failed
+        num_steps_list.append(num_steps)
+        if not train:
+            if reachable:
+                wandb.log({"Test Reachable Reward": np.mean(reward_batch), "Episode": i + 1, "Num steps to goal: reachable": num_steps})
+                print("Test Run: {} | Test Reachable Reward: {} | Num steps to goal: {}".format(i + 1, np.mean(reward_batch), num_steps))
+            else:
+                wandb.log({"Test Unreachable Reward": np.mean(reward_batch), "Episode": i + 1, "Num steps to goal: unreachable": num_steps})
+                print("Test Run: {} | Test Unreachable Reward: {} | Num steps to goal: {}".format(i + 1, np.mean(reward_batch), num_steps))
+    return np.mean(reward_batch), tasks_finished, tasks_failed, np.mean(num_steps_list)
 
 
 def train(config):
@@ -118,12 +128,11 @@ def train(config):
         # expectile = config.expectile,
 
         wandb.watch(agent, log="gradients", log_freq=10)
-        eval_reward, _, _ = evaluate(agent, train_config)
+        eval_reward, _, _, _ = evaluate(agent, train_config, train=True)
         wandb.log({"Eval Reward": eval_reward, "Episode": 0}, step=batches)
         for i in range(1, config.episodes + 1):
             for _ in range(config.num_updates_per_episode):
                 states, actions, rewards, next_states, dones = buffer.sample(config.batch_size)
-                # dones = torch.tensor(dones, dtype=torch.bool).to(device)
                 dones = dones.clone().detach().to(device, dtype=torch.bool)
                 actions = torch.tensor([actions[i][0] for i in range(len(actions))]).unsqueeze(dim=0).to(device)
 
@@ -132,12 +141,12 @@ def train(config):
                 batches += 1
 
             if i % config.eval_every == 0:
-                eval_reward, terminated, truncated = evaluate(agent, train_config)
+                eval_reward, terminated, truncated, num_steps = evaluate(agent, train_config, train=True)
                 wandb.log({"Eval Reward": eval_reward, "Episode": i}, step=batches)
 
                 average_reward.append(eval_reward)
-                print("Episode: {} | Reward: {} | Polciy Loss: {} | Batches: {} | terminated: {} | truncated {}".
-                      format(i, eval_reward, policy_loss, batches, terminated, truncated))
+                print("Episode: {} | Reward: {} | Polciy Loss: {} | Batches: {} | terminated: {} | truncated {} "
+                      "| num_steps: {}".format(i, eval_reward, policy_loss, batches, terminated, truncated, num_steps))
 
             wandb.log({
                 "Average Reward": np.mean(average_reward),
@@ -152,11 +161,11 @@ def train(config):
 
         # Testing
         test_reachable_config = four_room_extensions.fourrooms_dataset_gen.get_config(config_data="test_100")
-        _, test_terminated, test_truncated = evaluate(agent, test_reachable_config, eval_runs=40)
+        _, test_terminated, test_truncated, _ = evaluate(agent, test_reachable_config, train=False, reachable=True)
         print("Terminated reachable: " + str(test_terminated) + " | Truncated reachable: " + str(test_truncated))
 
         test_unreachable_config = four_room_extensions.fourrooms_dataset_gen.get_config(config_data="test_0")
-        _, test_terminated, test_truncated = evaluate(agent, test_unreachable_config, eval_runs=40, reachable=False)
+        _, test_terminated, test_truncated, _ = evaluate(agent, test_unreachable_config, train=False, reachable=False)
         print("Terminated unreachable: " + str(test_terminated) + " | Truncated unreachable: " + str(test_truncated))
 
 
