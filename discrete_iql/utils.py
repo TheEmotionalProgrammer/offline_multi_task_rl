@@ -1,14 +1,20 @@
 import torch
+import os
 
 
-def save(args, save_name, model, wandb, ep):
-    import os
-    save_dir = './trained_models/'
-    if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
-    save_path = save_dir + args.run_name + "_" + str(ep) + ".pth"
-    torch.save(model.state_dict(), save_path)
-    wandb.save(save_path)
+def save_model(agent, save_path="./trained_models/", filename="final_model.pth"):
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+    torch.save({
+        'actor_state_dict': agent.actor_local.state_dict(),
+        'actor_optimizer_state_dict': agent.actor_optimizer.state_dict()
+    }, os.path.join(save_path, filename))
+
+
+def load_model(agent, save_path="./trained_models/", filename="model.pth"):
+    model = torch.load(os.path.join(save_path, filename))
+    agent.actor_local.load_state_dict(model['actor_state_dict'])
+    agent.actor_optimizer.load_state_dict(model['actor_optimizer_state_dict'])
 
 
 def collect_random(env, dataset, num_samples=200):

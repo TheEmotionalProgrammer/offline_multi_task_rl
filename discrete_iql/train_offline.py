@@ -12,26 +12,24 @@ import four_room_extensions
 from agent import IQL
 from four_room_extensions.fourrooms_dataset_gen import get_expert_dataset, get_expert_dataset_from_config
 from four_room_extensions.sac_n_discrete import ReplayBuffer
-from utils import save
-
-save_model = 0
+from utils import save_model, load_model
 
 
 def get_config():
     parser = argparse.ArgumentParser(description='RL')
     parser.add_argument("--run_name", type=str, default="IQL", help="Run name, default: SAC")
-    parser.add_argument("--episodes", type=int, default=10, help="Number of episodes, default: 100")
-    parser.add_argument("--num_updates_per_episode", type=int, default=1000, help="Number of updates per episode, default: 100")
     parser.add_argument("--seed", type=int, default=1, help="Seed, default: 1")
-    parser.add_argument("--save_every", type=int, default=25, help="Saves the network every x epochs, default: 25")
+    parser.add_argument("--episodes", type=int, default=10, help="Number of episodes, default: 100")
+    parser.add_argument("--num_updates_per_episode", type=int, default=500, help="Number of updates per episode, default: 100")
     parser.add_argument("--buffer_size", type=int, default=100_000, help="Maximal training dataset size, default: 100_000")
     parser.add_argument("--batch_size", type=int, default=256, help="Batch size, default: 256")
     parser.add_argument("--hidden_size", type=int, default=256, help="")
     parser.add_argument("--learning_rate", type=float, default=3e-4, help="")
+    parser.add_argument("--weight_decay", type=float, default=1e-4, help="Weight decay for regularization")
     parser.add_argument("--temperature", type=float, default=100, help="")  # 3 ?
     parser.add_argument("--expectile", type=float, default=0.8, help="")  # in the paper it is 0.95
     parser.add_argument("--tau", type=float, default=5e-3, help="")
-    parser.add_argument("--weight_decay", type=float, default=1e-4, help="Weight decay for regularization")
+    # parser.add_argument("--save_every", type=int, default=10, help="Saves the network every x epochs, default: 25")
     parser.add_argument("--eval_every", type=int, default=1, help="")
 
     args = parser.parse_args()
@@ -96,8 +94,6 @@ def train(config):
     print("Train terminated: " + str(tasks_finished))
     print("Train truncated: " + str(tasks_failed))
 
-    # dataset, env = get_expert_dataset()
-
     # env.seed(config.seed)
     # env.action_space.seed(config.seed)
 
@@ -127,8 +123,8 @@ def train(config):
                     weight_decay=config.weight_decay)
 
         wandb.watch(agent, log="gradients", log_freq=10)
-        eval_reward, _, _, _ = evaluate(agent, train_config, train=True)
-        wandb.log({"Eval Reward": eval_reward, "Episode": 0}, step=batches)
+        eval_reward, _, _, num_steps = evaluate(agent, train_config, train=True)
+        wandb.log({"Eval Reward": eval_reward, "Episode": 0, "Avg num steps to goal: evaluation": num_steps}, step=batches)
         for i in range(1, config.episodes + 1):
             for _ in range(config.num_updates_per_episode):
                 states, actions, rewards, next_states, dones = buffer.sample(config.batch_size)
@@ -141,7 +137,7 @@ def train(config):
 
             if i % config.eval_every == 0:
                 eval_reward, terminated, truncated, num_steps = evaluate(agent, train_config, train=True)
-                wandb.log({"Eval Reward": eval_reward, "Episode": i}, step=batches)
+                wandb.log({"Eval Reward": eval_reward, "Episode": i, "Avg num steps to goal: evaluation": num_steps}, step=batches)
 
                 print("Episode: {} | Reward: {} | Polciy Loss: {} | Batches: {} | terminated: {} | truncated {} "
                       "| num_steps: {}".format(i, eval_reward, policy_loss, batches, terminated, truncated, num_steps))
@@ -150,11 +146,32 @@ def train(config):
                 "Policy Loss": policy_loss,
                 "Value Loss": value_loss,
                 "Critic 1 Loss": critic1_loss,
-                "Critic 2 Loss": critic2_loss})
+                "Critic 2 Loss": critic2_loss
+            })
 
-            # works when developed mode on! (windows)
-            # if i % config.save_every == 0:
-            #     save(config, save_name="IQL", model=agent.actor_local, wandb=wandb, ep=config.episodes)
+            if i % config.episodes == 0:
+                save_model(agent, filename=f"model_{config.episodes}_{config.num_updates_per_episode}.pth")
+
+
+def test_loaded_model(config, save_path="./trained_models/", filename="model.pth"):
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    observations = 324
+    actions = 3
+
+    with wandb.init(project="IQL-offline", name=config.run_name, config=config):
+
+        agent = IQL(state_size=observations,
+                    action_size=actions,
+                    device=device,
+                    learning_rate=config.learning_rate,
+                    hidden_size=config.hidden_size,
+                    tau=config.tau,
+                    temperature=config.temperature,
+                    expectile=config.expectile,
+                    weight_decay=config.weight_decay)
+
+        load_model(agent, save_path, filename)
 
         # Testing
         test_reachable_config = four_room_extensions.fourrooms_dataset_gen.get_config(config_data="test_100")
@@ -169,3 +186,4 @@ def train(config):
 if __name__ == "__main__":
     config = get_config()
     train(config)
+    # test_loaded_model(config, filename="model_10_500.pth")
