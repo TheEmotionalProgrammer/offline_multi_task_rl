@@ -6,7 +6,6 @@ from four_room.env import FourRoomsEnv
 from four_room.shortest_path import find_all_action_values
 from four_room.utils import obs_to_state
 from four_room.wrappers import gym_wrapper
-
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 import dill
@@ -97,10 +96,9 @@ def get_expert_dataset():
 
     print(dataset['observations'].shape)
 
-    return dataset
+    return dataset    
 
-
-def get_dataset_from_config(config, policy=0, render=False):
+def get_dataset_from_config(config, policy=0, render=False, render_name="") -> tuple[Dict[str, Any], gym.Env]:
     '''
     Generates a dataset from the tasks specified in config. Size of returned dataset thus depends on amount of tasks
     specified in config as well as on the quality of the policy used to generate the dataset. If step_limit=True is
@@ -144,8 +142,8 @@ def get_dataset_from_config(config, policy=0, render=False):
             last_observation = observation
             observation, reward, terminated, truncated, info = env.step(action)
 
-            dataset['observations'].append(np.array(last_observation).flatten())
-            dataset['next_observations'].append(np.array(observation).flatten())
+            dataset['observations'].append(last_observation.flatten())
+            dataset['next_observations'].append(observation.flatten())
             dataset['actions'].append(np.array([action]))
             dataset['rewards'].append(reward)
             dataset['terminals'].append(terminated)
@@ -160,21 +158,23 @@ def get_dataset_from_config(config, policy=0, render=False):
 
     for key in dataset:
         dataset[key] = np.array(dataset[key])
-    imageio.mimsave(f'rendered_episodes/rendered_episode_{"random" if policy else "expert"}.gif', [np.array(img) for i, img in enumerate(imgs) if i%1 == 0], duration=200) if render else None
 
-    return dataset, tasks_finished, tasks_failed
+    render_name = f"{render_name}" if render_name else f'rendered_episode_{"random" if policy else "expert"}'
+    imageio.mimsave(f'rendered_episodes/{render_name}.gif', [np.array(img) for i, img in enumerate(imgs) if i%1 == 0], duration=200) if render else None
+
+    return dataset, env
 
 
 def get_config(path):
-    with open('../four_room/configs/fourrooms_train_config.pl', 'rb') as file:
+    with open(path, 'rb') as file:
         train_config = dill.load(file)
     file.close()
     return train_config
 
 
-def get_expert_dataset_from_config(config, render=False):
-    return get_dataset_from_config(config, policy=0, render=render)
+def get_expert_dataset_from_config(config, render=False, render_name=""):
+    return get_dataset_from_config(config, policy=0, render=render, render_name=render_name)
 
 
-def get_random_dataset_from_config(config, render=False):
-    return get_dataset_from_config(config, policy=1, render=render)
+def get_random_dataset_from_config(config, render=False, render_name=""):
+    return get_dataset_from_config(config, policy=1, render=render, render_name=render_name)
