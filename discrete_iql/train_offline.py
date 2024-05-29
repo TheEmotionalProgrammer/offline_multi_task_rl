@@ -8,7 +8,7 @@ from four_room.env import FourRoomsEnv
 from four_room.wrappers import gym_wrapper
 import four_room_extensions
 from agent import IQL
-from four_room_extensions.fourrooms_dataset_gen import get_expert_dataset, get_expert_dataset_from_config
+from four_room_extensions.fourrooms_dataset_gen import get_expert_dataset_from_config, get_random_dataset_from_config
 from four_room_extensions.sac_n_discrete import ReplayBuffer
 import time
 
@@ -74,10 +74,13 @@ def evaluate(policy, env, n_configs):
     return np.mean(reward_batch), tasks_finished, tasks_failed, np.mean(num_steps_list)
 
 
-def train(config):
-    # Load the dataset
+def train(config, expert=True):
     train_config = four_room_extensions.fourrooms_dataset_gen.get_config(config_data="train")
-    dataset, train_env, tasks_finished, tasks_failed = get_expert_dataset_from_config(train_config)
+    if expert:
+        dataset, train_env, tasks_finished, tasks_failed = get_expert_dataset_from_config(train_config)
+    else:
+        print("random")
+        dataset, train_env, tasks_finished, tasks_failed = get_random_dataset_from_config(train_config)
     print("Train terminated: " + str(tasks_finished))
     print("Train truncated: " + str(tasks_failed))
 
@@ -130,8 +133,9 @@ def train(config):
         wandb.watch(agent, log="gradients", log_freq=10)
         eval_reward, _, _, num_steps = evaluate(agent, eval_env, n_configs=len(train_config["topologies"]))
         wandb.log({"Eval Reward": eval_reward, "Episode": 0, "Avg num steps to goal: evaluation": num_steps}, step=batches)
+        start_time = time.time()
         for i in range(1, config.episodes + 1):
-            start_time = time.time()
+            start_episode_time = time.time()
             for _ in range(config.num_updates_per_episode):
                 states, actions, rewards, next_states, dones = buffer.sample(config.batch_size)
 
@@ -167,7 +171,8 @@ def train(config):
                 "Critic 1 Loss": critic1_loss,
                 "Critic 2 Loss": critic2_loss
             })
-            print("--- %s seconds ---" % (time.time() - start_time))
+
+            print("--- %s seconds ---" % (time.time() - start_episode_time))
 
             # if i % config.episodes == 0:
             #     save_model(agent, filename=f"model_{config.episodes}_{config.num_updates_per_episode}.pth")
@@ -175,7 +180,9 @@ def train(config):
         print("Avg Reachable Reward: ", np.mean(rewards_reachable))
         print("Avg Unreachable Reward: ", np.mean(rewards_unreachable))
 
+        print("--- %s seconds ---" % (time.time() - start_time))
+
 
 if __name__ == "__main__":
     config = get_config()
-    train(config)
+    train(config, expert=False)
