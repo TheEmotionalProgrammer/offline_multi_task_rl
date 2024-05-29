@@ -65,7 +65,7 @@ def get_random_dataset(num_steps: int = 1000):
     return dataset
 
 
-def get_expert_dataset(num_steps=1000):
+def get_expert_dataset(num_steps: int = 1000):
     """
     This function generates a dataset using the expert policy for the FourRooms environment.
     """
@@ -96,10 +96,10 @@ def get_expert_dataset(num_steps=1000):
 
     for key in dataset:
         dataset[key] = np.array(dataset[key])
-    return dataset, env
+    return dataset
 
 
-def get_dataset_from_config(config, policy=0, render=False):
+def get_dataset_from_config(config, policy=0, render=False, render_name="") -> tuple[Dict[str, Any], gym.Env, int, int]:
     '''
     Generates a dataset from the tasks specified in config. Size of returned dataset thus depends on amount of tasks
     specified in config as well as on the quality of the policy used to generate the dataset. If step_limit=True is
@@ -136,6 +136,12 @@ def get_dataset_from_config(config, policy=0, render=False):
                 action = np.argmax(q_values)
             elif policy == 1:
                 action = env.action_space.sample()
+            elif policy == 2: #suboptimal policy, with a 70% chance of going in the right direction
+                state = obs_to_state(observation)
+                q_values = find_all_action_values(state[:2], state[2], state[3:5], state[5:], 0.99)
+                action = np.argmax(q_values)
+                if np.random.rand() < 0.15: # 15% chance of going in a random direction
+                    action = env.action_space.sample()
             else:
                 # implement default behaviour or return error, for now just uses random policy
                 action = env.action_space.sample()
@@ -159,9 +165,18 @@ def get_dataset_from_config(config, policy=0, render=False):
 
     for key in dataset:
         dataset[key] = np.array(dataset[key])
-    imageio.mimsave(f'rendered_episodes/rendered_episode_{"random" if policy else "expert"}.gif', [np.array(img) for i, img in enumerate(imgs) if i%1 == 0], duration=200) if render else None
+
+    render_name = f"{render_name}" if render_name else f'rendered_episode_{"random" if policy else "expert"}'
+    imageio.mimsave(f'rendered_episodes/{render_name}.gif', [np.array(img) for i, img in enumerate(imgs) if i%1 == 0], duration=200) if render else None
 
     return dataset, env, tasks_finished, tasks_failed
+
+
+def get_config_isidoro(path):
+    with open(path, 'rb') as file:
+        train_config = dill.load(file)
+    file.close()
+    return train_config
 
 
 def get_config(config_data: str):
@@ -171,9 +186,13 @@ def get_config(config_data: str):
     return train_config
 
 
-def get_expert_dataset_from_config(config, render=False):
-    return get_dataset_from_config(config, policy=0, render=render)
+def get_expert_dataset_from_config(config, render=False, render_name=""):
+    return get_dataset_from_config(config, policy=0, render=render, render_name=render_name)
 
 
-def get_random_dataset_from_config(config, render=False):
-    return get_dataset_from_config(config, policy=1, render=render)
+def get_random_dataset_from_config(config, render=False, render_name=""):
+    return get_dataset_from_config(config, policy=1, render=render, render_name=render_name)
+
+
+def get_suboptimal_dataset_from_config(config, render=False, render_name=""):
+    return get_dataset_from_config(config, policy=2, render=render, render_name=render_name)

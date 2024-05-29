@@ -20,7 +20,7 @@ from torch.distributions import Normal
 from tqdm import trange
 from torch.functional import F
 
-from .fourrooms_dataset_gen import get_expert_dataset, get_random_dataset
+from .fourrooms_dataset_gen import get_expert_dataset, get_random_dataset, get_config_isidoro, get_dataset_from_config, get_expert_dataset_from_config, get_random_dataset_from_config
 from four_room.env import FourRoomsEnv
 from four_room.wrappers import gym_wrapper
 gym.register('MiniGrid-FourRooms-v1', FourRoomsEnv)
@@ -50,7 +50,7 @@ class TrainConfig:
     normalize_reward: bool = False
     # evaluation params
     eval_episodes: int = 10
-    eval_every: int = 5
+    eval_every: int = 1
     # general params
     checkpoints_path: Optional[str] = None
     deterministic_torch: bool = False
@@ -423,7 +423,12 @@ class SACN:
         # Actor update
         actor_loss, actor_batch_entropy, q_policy_std, action_probs, lmbda = self._actor_loss(state)
         #print(action.shape)
+
         log_probs = torch.log(action_probs.gather(1, action.long().reshape(1,256)).squeeze(-1)) 
+        #log_probs = torch.log(action_probs.gather(0, action.long()).squeeze(-1))
+        #log_probs = torch.log(action_probs)
+
+        #print(log_probs.mean())
         #SAC + BEHAVIORAL CLONING
         #print(torch.log(action_probs).mean())
         actor_loss = actor_loss if not self.bc else actor_loss - log_probs.mean()# FIXME, TODO chosen_act gives problems with backpropagation as it is stochastic. Either use reparametrization trick or use probs
@@ -454,7 +459,7 @@ class SACN:
             "alpha": self.alpha.item(),
             "q_policy_std": q_policy_std,
             "q_random_std": q_random_std,
-            "reward": reward.mean().item(),
+            "train_reward": reward.mean().item(),
             
         }
         return update_info
@@ -481,36 +486,28 @@ class SACN:
         self.log_alpha.data[0] = state_dict["log_alpha"]
         self.alpha = self.log_alpha.exp().detach()
 
-
-@torch.no_grad()
 def eval_actor(
     env: gym.Env, actor: Actor, device: str, n_episodes: int, seed: int
 ) -> np.ndarray:
     #env.seed(seed)
-    env.reset(seed=seed)
     actor.eval()
     episode_rewards = []
-    print("Evaluating actor...")
-    #print number of episode_rewards
-    print("Number of eps: ", n_episodes)
-    for i in range(n_episodes):
-        
-        state, done = env.reset(), False
+    for _ in range(n_episodes):
+        state, _ = env.reset(seed=seed)
+        state = state.flatten()
+        done = False
         episode_reward = 0.0
         while not done:
             action = actor.act(state, device)
-            state, reward, done, truncated, info = env.step(action)
-            if reward != 0:
-                print("Reward: ", reward)
-                print("Episode: ", i)
-
-            done = done or truncated    # TODO are we sure about this?
-
-            # print("Reward: ", reward)
-            # print("Done: ", done)
-
+            state, reward, terminated, truncated, info = env.step(action)
+            state = state.flatten()
+            done = terminated or truncated
             episode_reward += reward
         episode_rewards.append(episode_reward)
+
+    print("Evaluated actor.")
+    print("Episode rewards: ", episode_rewards)
+    print("Tot reward:", sum(episode_rewards))
 
     actor.train()
     return np.array(episode_rewards)
@@ -541,12 +538,13 @@ def modify_reward(dataset, env_name, max_episode_steps=1000):
 
 
 @pyrallis.wrap()
-def train(config: TrainConfig, random_or_expert_dataset: str = "expert"):
+def train(config: TrainConfig, traindatachoice: str = "fourrooms_train_config.pl", evaldatachoice: str = "fourrooms_test_0_config.pl"):
     set_seed(config.train_seed, deterministic_torch=config.deterministic_torch)
     wandb_init(asdict(config))
 
     # data, evaluation, env setup
-    eval_env = wrap_env(gym_wrapper(gym.make(config.env_name)))
+    #eval_env = wrap_env(gym_wrapper(gym.make(config.env_name)))
+    eval_env = wrap_env(get_expert_dataset_from_config(get_config_isidoro("four_room/configs/" + evaldatachoice))[1])
     num_actions = eval_env.action_space.n
     state_dim=1
     for dim in eval_env.observation_space.shape:
@@ -557,12 +555,13 @@ def train(config: TrainConfig, random_or_expert_dataset: str = "expert"):
     action_dim = 1
 
     # Load whatever dataset you wish to use here, in d4rl format
-    # I'm using a script that runs four-room with random actions and generates a dataset
-    # train_dataset = qlearning_dataset(eval_env)
-    if "random" in random_or_expert_dataset.lower():
+
+    if traindatachoice == 'random':
         train_dataset = get_random_dataset()
+    elif traindatachoice == 'expert':
+        train_dataset = get_expert_dataset()
     else:
-        train_dataset, _ = get_expert_dataset()
+        train_dataset, _, _, _ = get_expert_dataset_from_config(get_config_isidoro("four_room/configs/" + traindatachoice))[0]
 
     if config.normalize_reward:
         modify_reward(train_dataset, config.env_name)
@@ -626,9 +625,10 @@ def train(config: TrainConfig, random_or_expert_dataset: str = "expert"):
                 device=config.device,
             )
             eval_log = {
-                "eval/reward_mean": np.mean(eval_returns),
-                "eval/reward_std": np.std(eval_returns),
                 "epoch": epoch,
+                "eval/reward_mean": np.mean(eval_returns).item(),
+                "eval/reward_std": np.std(eval_returns).item(),
+                
             }
             if hasattr(eval_env, "get_normalized_score"):
                 normalized_score = eval_env.get_normalized_score(eval_returns) * 100.0

@@ -154,14 +154,14 @@ def train(config, expert=True):
                 # Test Reachable
                 reachable_reward, terminated_reachable, truncated_reachable, num_steps_reachable = evaluate(agent, test_reachable_env, n_configs=len(train_config["topologies"]))
                 wandb.log({"Test Cumulative Reachable Reward": reachable_reward, "Episode": i, "Num steps to goal: reachable": num_steps_reachable})
-                print("Test Reachable: {} | Cumulative Reward: {} | Steps to goal: {} Terminated: {} | Truncated: {}"
+                print("Test Reachable: {} | Reward: {} | Steps to goal: {} Terminated: {} | Truncated: {}"
                       .format(i, reachable_reward, num_steps_reachable, terminated_reachable, truncated_reachable))
                 rewards_reachable.append(reachable_reward)
 
                 # Test Unreachable
                 unreachable_reward, terminated_unreachable, truncated_unreachable, num_steps_unreachable = evaluate(agent, test_unreachable_env, n_configs=len(train_config["topologies"]))
                 wandb.log({"Test Cumulative Unreachable Reward": unreachable_reward, "Episode": i, "Num steps to goal: unreachable": num_steps_unreachable})
-                print("Test Unreachable: {} | Cumulative Reward: {} | Steps to goal: {} Terminated: {} | Truncated: {}"
+                print("Test Unreachable: {} | Reward: {} | Steps to goal: {} Terminated: {} | Truncated: {}"
                       .format(i, unreachable_reward, num_steps_unreachable, terminated_unreachable, truncated_unreachable))
                 rewards_unreachable.append(unreachable_reward)
 
