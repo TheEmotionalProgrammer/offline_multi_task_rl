@@ -1,8 +1,12 @@
+import os
+from pathlib import Path
+
 import gymnasium as gym
 from typing import Any, Dict, List, Union
 import numpy as np
 import torch
 from torch.utils.data import TensorDataset, DataLoader
+from stable_baselines3.dqn.dqn import DQN
 
 from four_room.env import FourRoomsEnv
 from four_room.shortest_path import find_all_action_values
@@ -198,27 +202,14 @@ def get_suboptimal_dataset_from_config(config, render=False, render_name=""):
     return get_dataset_from_config(config, policy=2, render=render, render_name=render_name)
 
 
-def get_mixed_dataset_from_config(config, render=False, render_name=""):  # , dqn_model=None
-    return load_dqn_models(config)
-    # return get_dataset_from_config(config, policy=3, render=render, render_name=render_name)
+def get_mixed_dataset_from_config(config, train_env, checkpoints):
+    return load_dqn_models(config, train_env, checkpoints)
 
 
-def create_env(eval_config):
-    gym.register('MiniGrid-FourRooms-v1', FourRoomsEnv)
-    env = gym_wrapper(gym.make('MiniGrid-FourRooms-v1',
-                               agent_pos=eval_config['agent positions'],
-                               goal_pos=eval_config['goal positions'],
-                               doors_pos=eval_config['topologies'],
-                               agent_dir=eval_config['agent directions'],
-                               render_mode="rgb_array"))
-    return env
-
-
-def load_dqn_models(config, checkpoints_list):
+def load_dqn_models(config, train_env, checkpoints_list):
     parent_dir = Path(os.getcwd()).parents[0]
     checkpoints_path = os.path.join(parent_dir, 'four_room_extensions', 'DQN_models')
     datasets = {'observations': [], 'next_observations': [], 'actions': [], 'rewards': [], 'terminals': [], 'timeouts': [], 'infos': []}
-    train_env = create_env(config)
     finished = 0
     failed = 0
     for checkpoint in os.listdir(checkpoints_path):
@@ -262,4 +253,4 @@ def load_dqn_models(config, checkpoints_list):
     for key in datasets:
         datasets[key] = np.array(datasets[key])
 
-    return datasets, train_env, finished, failed
+    return datasets, finished, failed

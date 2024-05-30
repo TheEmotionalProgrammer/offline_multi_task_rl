@@ -1,5 +1,8 @@
 import argparse
+import os
 import random
+from pathlib import Path
+
 import gymnasium as gym
 import numpy as np
 import torch
@@ -8,8 +11,8 @@ from four_room.env import FourRoomsEnv
 from four_room.wrappers import gym_wrapper
 import four_room_extensions
 from agent import IQL
-from four_room_extensions.fourrooms_dataset_gen import get_expert_dataset_from_config, get_random_dataset_from_config, \
-    get_mixed_dataset_from_config
+from four_room_extensions.fourrooms_dataset_gen import get_expert_dataset_from_config, get_random_dataset_from_config, get_mixed_dataset_from_config
+from four_room_extensions.process_DQN_checkpoints import get_checkpoint_performance
 from four_room_extensions.sac_n_discrete import ReplayBuffer
 import time
 
@@ -75,13 +78,17 @@ def evaluate(policy, env, n_configs):
     return np.mean(reward_batch), tasks_finished, tasks_failed, np.mean(num_steps_list)
 
 
-def train(config, expert=True):
+def train(config, policy="expert"):
     train_config = four_room_extensions.fourrooms_dataset_gen.get_config(config_data="train")
-    if expert:
+    if policy == "expert":
         dataset, train_env, tasks_finished, tasks_failed = get_expert_dataset_from_config(train_config)
-    else:
-        print("random")
+    elif policy == "random":
         dataset, train_env, tasks_finished, tasks_failed = get_random_dataset_from_config(train_config)
+    elif policy == "mixed":
+        parent_dir = Path(os.getcwd()).parents[0]
+        checkpoints = get_checkpoint_performance(parent_dir)
+        train_env = create_env(config)
+        dataset, tasks_finished, tasks_failed = get_mixed_dataset_from_config(train_config, train_env, checkpoints)
     print("Train terminated: " + str(tasks_finished))
     print("Train truncated: " + str(tasks_failed))
 
@@ -186,4 +193,4 @@ def train(config, expert=True):
 
 if __name__ == "__main__":
     config = get_config()
-    train(config, expert=False)
+    train(config, policy="mixed")
