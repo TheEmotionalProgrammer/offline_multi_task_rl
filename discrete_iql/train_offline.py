@@ -8,7 +8,8 @@ from four_room.env import FourRoomsEnv
 from four_room.wrappers import gym_wrapper
 import four_room_extensions
 from agent import IQL
-from four_room_extensions.fourrooms_dataset_gen import get_expert_dataset_from_config, get_random_dataset_from_config
+from four_room_extensions.fourrooms_dataset_gen import get_expert_dataset_from_config, get_random_dataset_from_config, \
+    get_mixed_dataset_from_config
 from four_room_extensions.sac_n_discrete import ReplayBuffer
 import time
 

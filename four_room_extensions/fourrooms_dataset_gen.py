@@ -196,3 +196,70 @@ def get_random_dataset_from_config(config, render=False, render_name=""):
 
 def get_suboptimal_dataset_from_config(config, render=False, render_name=""):
     return get_dataset_from_config(config, policy=2, render=render, render_name=render_name)
+
+
+def get_mixed_dataset_from_config(config, render=False, render_name=""):  # , dqn_model=None
+    return load_dqn_models(config)
+    # return get_dataset_from_config(config, policy=3, render=render, render_name=render_name)
+
+
+def create_env(eval_config):
+    gym.register('MiniGrid-FourRooms-v1', FourRoomsEnv)
+    env = gym_wrapper(gym.make('MiniGrid-FourRooms-v1',
+                               agent_pos=eval_config['agent positions'],
+                               goal_pos=eval_config['goal positions'],
+                               doors_pos=eval_config['topologies'],
+                               agent_dir=eval_config['agent directions'],
+                               render_mode="rgb_array"))
+    return env
+
+
+def load_dqn_models(config, checkpoints_list):
+    parent_dir = Path(os.getcwd()).parents[0]
+    checkpoints_path = os.path.join(parent_dir, 'four_room_extensions', 'DQN_models')
+    datasets = {'observations': [], 'next_observations': [], 'actions': [], 'rewards': [], 'terminals': [], 'timeouts': [], 'infos': []}
+    train_env = create_env(config)
+    finished = 0
+    failed = 0
+    for checkpoint in os.listdir(checkpoints_path):
+        time_step = checkpoint[checkpoint.find('_')+1: checkpoint.find('.')]
+        if time_step in checkpoints_list and checkpoint.endswith('.zip'):
+            model = DQN.load(os.path.join(checkpoints_path, checkpoint), env=train_env)
+
+            dataset = {'observations': [], 'next_observations': [], 'actions': [], 'rewards': [],
+                       'terminals': [], 'timeouts': [], 'infos': []}
+            tasks_finished = 0
+            tasks_failed = 0
+
+            for i in range(len(config["topologies"])):
+                state, _ = train_env.reset()
+                done = False
+                while not done:
+                    last_observation = state
+                    action, _ = model.predict(state)
+                    state, reward, terminated, truncated, info = train_env.step(action)
+
+                    dataset['observations'].append(np.array(last_observation).flatten())
+                    dataset['next_observations'].append(np.array(state).flatten())
+                    dataset['actions'].append(np.array([action]))
+                    dataset['rewards'].append(reward)
+                    dataset['terminals'].append(terminated)
+                    dataset['timeouts'].append(truncated)
+                    dataset['infos'].append(info)
+
+                    if terminated:
+                        tasks_finished += 1
+                    if truncated:
+                        tasks_failed += 1
+                    done = terminated or truncated
+
+            finished += tasks_finished
+            failed += tasks_failed
+            for key in dataset:
+                dataset[key] = np.array(dataset[key])
+                datasets[key].extend(dataset[key])
+
+    for key in datasets:
+        datasets[key] = np.array(datasets[key])
+
+    return datasets, train_env, finished, failed
