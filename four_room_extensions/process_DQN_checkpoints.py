@@ -29,14 +29,17 @@ def list_checkpoint_files():
 
 
 def get_checkpoint_performance(path):
+    """Get the 16 best policies based on the length of the episode"""
     # use path when you run this script from another folder
     with open(os.path.join(path, 'four_room_extensions', 'DQN_models', 'performance_per_model.txt'), 'r') as f:
         checkpoints = []
         for line in f.readlines():
             timestep = line.split(' - ')[0]
+            timestep = timestep.replace('_', '')
             num_steps = float(line[line.find(':')+2: line.find(',')])
             checkpoints.append((timestep, num_steps))
     checkpoints.sort(key=lambda x: x[1])
     seen = set()
-    checkpoints = [(a, b) for a, b in checkpoints if not (b in seen or seen.add(b))]
-    return checkpoints[:16]
+    checkpoints = [(a, num_steps) for a, num_steps in checkpoints if not (num_steps in seen or seen.add(num_steps))]
+    # return a list of timesteps
+    return [timestep for timestep, b in checkpoints[:16]]

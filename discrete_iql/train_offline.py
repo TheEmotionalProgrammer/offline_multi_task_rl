@@ -87,7 +87,8 @@ def train(config, policy="expert"):
     elif policy == "mixed":
         parent_dir = Path(os.getcwd()).parents[0]
         checkpoints = get_checkpoint_performance(parent_dir)
-        train_env = create_env(config)
+        print(checkpoints)
+        train_env = create_env(train_config)
         dataset, tasks_finished, tasks_failed = get_mixed_dataset_from_config(train_config, train_env, checkpoints)
     print("Train terminated: " + str(tasks_finished))
     print("Train truncated: " + str(tasks_failed))

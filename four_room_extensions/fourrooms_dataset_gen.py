@@ -246,6 +246,7 @@ def load_dqn_models(config, train_env, checkpoints_list):
 
             finished += tasks_finished
             failed += tasks_failed
+            print(f"Data policy: {time_step}, Num_transitions: {len(dataset['observations'])}")
             for key in dataset:
                 dataset[key] = np.array(dataset[key])
                 datasets[key].extend(dataset[key])
