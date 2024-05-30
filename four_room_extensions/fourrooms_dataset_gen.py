@@ -212,17 +212,20 @@ def load_dqn_models(config, train_env, checkpoints_list):
     datasets = {'observations': [], 'next_observations': [], 'actions': [], 'rewards': [], 'terminals': [], 'timeouts': [], 'infos': []}
     finished = 0
     failed = 0
+    start = 0
+    configurations_per_policy = len(config["topologies"]) // len(checkpoints_list)
     for checkpoint in os.listdir(checkpoints_path):
         time_step = checkpoint[checkpoint.find('_')+1: checkpoint.find('.')]
         if time_step in checkpoints_list and checkpoint.endswith('.zip'):
             model = DQN.load(os.path.join(checkpoints_path, checkpoint), env=train_env)
+            # print(f"configuration {start}")
 
             dataset = {'observations': [], 'next_observations': [], 'actions': [], 'rewards': [],
                        'terminals': [], 'timeouts': [], 'infos': []}
             tasks_finished = 0
             tasks_failed = 0
 
-            for i in range(len(config["topologies"])):
+            for i in range(start, min(start + configurations_per_policy, len(config["topologies"]))):
                 state, _ = train_env.reset()
                 done = False
                 while not done:
@@ -244,6 +247,7 @@ def load_dqn_models(config, train_env, checkpoints_list):
                         tasks_failed += 1
                     done = terminated or truncated
 
+            start += configurations_per_policy
             finished += tasks_finished
             failed += tasks_failed
             print(f"Data policy: {time_step}, Num_transitions: {len(dataset['observations'])}")

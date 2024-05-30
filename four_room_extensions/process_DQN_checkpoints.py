@@ -28,8 +28,8 @@ def list_checkpoint_files():
         break
 
 
-def get_checkpoint_performance(path):
-    """Get the 16 best policies based on the length of the episode"""
+def get_checkpoint_performance(path, episode_length=None, best_policy=False):
+    """Select policies based on the length of the episode"""
     # use path when you run this script from another folder
     with open(os.path.join(path, 'four_room_extensions', 'DQN_models', 'performance_per_model.txt'), 'r') as f:
         checkpoints = []
@@ -38,8 +38,26 @@ def get_checkpoint_performance(path):
             timestep = timestep.replace('_', '')
             num_steps = float(line[line.find(':')+2: line.find(',')])
             checkpoints.append((timestep, num_steps))
+    # sort checkpoints by number of steps
     checkpoints.sort(key=lambda x: x[1])
+    # keep only unique checkpoints
+    # TODO: maybe I want to keep the best out of the duplicates???
     seen = set()
     checkpoints = [(a, num_steps) for a, num_steps in checkpoints if not (num_steps in seen or seen.add(num_steps))]
+
+    if best_policy:
+        # select the best 16 checkpoints (16 is based on my observations - maximum 55 steps per episode)
+        checkpoints = checkpoints[:16]
+        max_steps = checkpoints[-1][1]
+        # adjust the percentage of the episode length
+        episode_length = [i * max_steps / 100 for i in episode_length]
+
+    if episode_length is None:
+        selected_policies = checkpoints
+    else:
+        selected_policies = []
+        for percent in episode_length:
+            selected_policies.append(min(checkpoints, key=lambda x: abs(x[1] - percent)))
+        print(f"policies [100%, 75%, 50%, 25%, 0%]: {selected_policies}")
     # return a list of timesteps
-    return [timestep for timestep, b in checkpoints[:16]]
+    return [timestep for timestep, b in selected_policies]
