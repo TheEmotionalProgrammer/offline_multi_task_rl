@@ -103,6 +103,35 @@ def get_expert_dataset(num_steps: int = 1000):
     return dataset
 
 
+def select_action(policy, observation, env):
+    if policy == 0:
+        state = obs_to_state(observation)
+        q_values = find_all_action_values(state[:2], state[2], state[3:5], state[5:], 0.99)
+        action = np.argmax(q_values)
+    elif policy == 1:
+        action = env.action_space.sample()
+    elif policy == 2:  # suboptimal policy, with a 70% chance of going in the right direction
+        state = obs_to_state(observation)
+        q_values = find_all_action_values(state[:2], state[2], state[3:5], state[5:], 0.99)
+        action = np.argmax(q_values)
+        if np.random.rand() < 0.15:  # 15% chance of going in a random direction
+            action = env.action_space.sample()
+    else:
+        # implement default behaviour or return error, for now just uses random policy
+        action = env.action_space.sample()
+    return action
+
+
+def collect_data(dataset, last_observation, observation, action, reward, terminated, truncated, info):
+    dataset['observations'].append(np.array(last_observation).flatten())
+    dataset['next_observations'].append(np.array(observation).flatten())
+    dataset['actions'].append(np.array([action]))
+    dataset['rewards'].append(reward)
+    dataset['terminals'].append(terminated)
+    dataset['timeouts'].append(truncated)
+    dataset['infos'].append(info)
+
+
 def get_dataset_from_config(config, policy=0, render=False, render_name="") -> tuple[Dict[str, Any], gym.Env, int, int]:
     '''
     Generates a dataset from the tasks specified in config. Size of returned dataset thus depends on amount of tasks
@@ -127,45 +156,28 @@ def get_dataset_from_config(config, policy=0, render=False, render_name="") -> t
 
     imgs = []
 
-    first_observations = set()
+    num_generations = 100 if policy == 1 else 1
     # with Display(visible=False) as disp:    # TODO why?
     for _ in range(len(config["topologies"])):
         observation, _ = env.reset()
-        done = False
-        while not done:
-            imgs.append(env.render()) if render else None
-            if policy == 0:
-                state = obs_to_state(observation)
-                q_values = find_all_action_values(state[:2], state[2], state[3:5], state[5:], 0.99)
-                action = np.argmax(q_values)
-            elif policy == 1:
-                action = env.action_space.sample()
-            elif policy == 2: #suboptimal policy, with a 70% chance of going in the right direction
-                state = obs_to_state(observation)
-                q_values = find_all_action_values(state[:2], state[2], state[3:5], state[5:], 0.99)
-                action = np.argmax(q_values)
-                if np.random.rand() < 0.15: # 15% chance of going in a random direction
-                    action = env.action_space.sample()
-            else:
-                # implement default behaviour or return error, for now just uses random policy
-                action = env.action_space.sample()
+        first_observation = observation
+        for _ in range(num_generations):
+            if policy == 1:
+                observation = first_observation
+            done = False
+            while not done:
+                imgs.append(env.render()) if render else None
+                action = select_action(policy, observation, env)
+                last_observation = observation
+                observation, reward, terminated, truncated, info = env.step(action)
 
-            last_observation = observation
-            observation, reward, terminated, truncated, info = env.step(action)
+                collect_data(dataset, last_observation, observation, action, reward, terminated, truncated, info)
 
-            dataset['observations'].append(np.array(last_observation).flatten())
-            dataset['next_observations'].append(np.array(observation).flatten())
-            dataset['actions'].append(np.array([action]))
-            dataset['rewards'].append(reward)
-            dataset['terminals'].append(terminated)
-            dataset['timeouts'].append(truncated)
-            dataset['infos'].append(info)
-
-            if terminated:
-                tasks_finished += 1
-            if truncated:
-                tasks_failed += 1
-            done = terminated or truncated
+                if terminated:
+                    tasks_finished += 1
+                if truncated:
+                    tasks_failed += 1
+                done = terminated or truncated
 
     for key in dataset:
         dataset[key] = np.array(dataset[key])
