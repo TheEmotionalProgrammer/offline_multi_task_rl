@@ -5,3 +5,6 @@ gymnasium
 matplotlib
 scikit-learn
 imageio
+pyrallis
+stable-baselines3[extra]
+torch

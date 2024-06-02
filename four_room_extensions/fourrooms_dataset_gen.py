@@ -1,9 +1,8 @@
 import os
 import gymnasium as gym
 from typing import Any, Dict, List, Union
-from matplotlib.path import Path
+from pathlib import Path
 import numpy as np
-import torch
 from torch.utils.data import TensorDataset, DataLoader
 from stable_baselines3.dqn.dqn import DQN
 from torch.utils.data import TensorDataset, DataLoader
@@ -178,8 +177,15 @@ def get_config_isidoro(path):
     file.close()
     return train_config
 
-def get_config(config_data: str):
-    with open(f'../four_room/configs/fourrooms_{config_data}_config.pl', 'rb') as file:
+def get_config(config_type: str):
+    """
+    Returns the configuration data for the specified configuration type.
+
+    Args:
+        config_tpye (str): The configuration type to load. Possible values: train, test_100, test_0
+    """
+
+    with open(f'../four_room/configs/fourrooms_{config_type}_config.pl', 'rb') as file:
         train_config = dill.load(file)
     file.close()
     return train_config
@@ -199,7 +205,7 @@ def get_mixed_dataset_from_config(config, train_env, checkpoints):
 
 
 def get_mixed_policy_dataset(config, train_env, checkpoints_list):
-    parent_dir = Path(os.getcwd()).parents[0]
+    parent_dir = Path(__file__).resolve().parent.parent
     checkpoints_path = os.path.join(parent_dir, 'four_room_extensions', 'DQN_models')
     datasets = {'observations': [], 'next_observations': [], 'actions': [], 'rewards': [], 'terminals': [], 'timeouts': [], 'infos': []}
     finished = 0
@@ -210,7 +216,6 @@ def get_mixed_policy_dataset(config, train_env, checkpoints_list):
         time_step = checkpoint[checkpoint.find('_')+1: checkpoint.find('.')]
         if time_step in checkpoints_list and checkpoint.endswith('.zip'):
             model = DQN.load(os.path.join(checkpoints_path, checkpoint), env=train_env)
-            # print(f"configuration {start}")
 
             dataset = {'observations': [], 'next_observations': [], 'actions': [], 'rewards': [],
                        'terminals': [], 'timeouts': [], 'infos': []}
@@ -225,8 +230,8 @@ def get_mixed_policy_dataset(config, train_env, checkpoints_list):
                     action, _ = model.predict(state)
                     state, reward, terminated, truncated, info = train_env.step(action)
 
-                    dataset['observations'].append(np.array(last_observation).flatten())
-                    dataset['next_observations'].append(np.array(state).flatten())
+                    dataset['observations'].append(last_observation.flatten())
+                    dataset['next_observations'].append(state.flatten())
                     dataset['actions'].append(np.array([action]))
                     dataset['rewards'].append(reward)
                     dataset['terminals'].append(terminated)

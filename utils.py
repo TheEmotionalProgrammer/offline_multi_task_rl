@@ -8,7 +8,7 @@ from four_room.env import FourRoomsEnv
 from four_room.wrappers import gym_wrapper
 
 def unzip_models():
-    path = os.path.join(os.getcwd(), 'four_room_extensions', 'DQN_models')
+    path = os.path.join(Path(__file__).resolve().parent, 'four_room_extensions', 'DQN_models')
     for file in os.listdir(path):
         if file.endswith('.zip'):
             zip_path = os.path.join(path, file)
@@ -23,7 +23,7 @@ def unzip_models():
 
 
 def list_files():
-    path = os.path.join(os.getcwd(), 'four_room_extensions', 'DQN_models')
+    path = os.path.join(Path(__file__).resolve().parent, 'four_room_extensions', 'DQN_models')
     for folder in os.listdir(path):
         fodler_path = os.path.join(path, folder)
         if os.path.isdir(fodler_path):
@@ -31,7 +31,7 @@ def list_files():
             break
         break
 
-def get_checkpoint_performance(path, episode_length=None, best_policy=False):
+def get_DQN_checkpoints(path, episode_length=None, best_policy=False):
     """Select DQN policies based on the length of the episode
 
     Args:
@@ -42,9 +42,9 @@ def get_checkpoint_performance(path, episode_length=None, best_policy=False):
     Returns:
         list of the selected policies with distribution based on the episode length
     """
-
+    orig_episode_length = episode_length
     # use path when you run this script from another folder
-    with open(os.path.join(path, 'four_room_extensions', 'DQN_models', 'performance_per_model.txt'), 'r') as f:
+    with open(path, 'r') as f:
         checkpoints = []
         for line in f.readlines():
             timestep = line.split(' - ')[0]
@@ -71,7 +71,7 @@ def get_checkpoint_performance(path, episode_length=None, best_policy=False):
         selected_policies = []
         for episode_length_goal in episode_length:
             selected_policies.append(min(checkpoints, key=lambda x: abs(x[1] - episode_length_goal)))   # select the closest number of steps to the percentage
-        print(f"policies {best_policy,sorted(reverse=True)}: {selected_policies}")
+        print(f"policies {sorted(orig_episode_length, reverse=True)}: {selected_policies}")
     # return a list of timesteps
     return [timestep for timestep, b in selected_policies]
 
