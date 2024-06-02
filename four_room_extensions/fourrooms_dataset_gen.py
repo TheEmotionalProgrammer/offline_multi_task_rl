@@ -1,7 +1,12 @@
+import os
 import gymnasium as gym
 from typing import Any, Dict, List, Union
+from matplotlib.path import Path
 import numpy as np
-
+import torch
+from torch.utils.data import TensorDataset, DataLoader
+from stable_baselines3.dqn.dqn import DQN
+from torch.utils.data import TensorDataset, DataLoader
 from four_room.env import FourRoomsEnv
 from four_room.shortest_path import find_all_action_values
 from four_room.utils import obs_to_state
@@ -11,6 +16,8 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 import dill
 import imageio
+
+from utils import create_env
 
 gym.register('MiniGrid-FourRooms-v1', FourRoomsEnv)
 
@@ -95,12 +102,10 @@ def get_expert_dataset(num_steps: int = 1000):
     for key in dataset:
         dataset[key] = np.array(dataset[key])
 
-    print(dataset['observations'].shape)
-
     return dataset
 
 
-def get_dataset_from_config(config, policy=0, render=False, render_name="") -> tuple[Dict[str, Any], gym.Env]:
+def get_dataset_from_config(config, policy=0, render=False, render_name="") -> tuple[Dict[str, Any], gym.Env, int, int]:
     '''
     Generates a dataset from the tasks specified in config. Size of returned dataset thus depends on amount of tasks
     specified in config as well as on the quality of the policy used to generate the dataset. If step_limit=True is
@@ -108,13 +113,7 @@ def get_dataset_from_config(config, policy=0, render=False, render_name="") -> t
     completed before num_steps a smaller dataset is returned. The policy argument takes an int, where 0=expert,
     1=random.
     '''
-    gym.register('MiniGrid-FourRooms-v1', FourRoomsEnv)
-    env = gym_wrapper(gym.make('MiniGrid-FourRooms-v1',
-                               agent_pos=config['agent positions'],
-                               goal_pos=config['goal positions'],
-                               doors_pos=config['topologies'],
-                               agent_dir=config['agent directions'],
-                               render_mode="rgb_array"))
+    env = create_env(config)
     
     tasks_finished = 0
     tasks_failed = 0
@@ -131,6 +130,7 @@ def get_dataset_from_config(config, policy=0, render=False, render_name="") -> t
         done = False
         while not done:
             imgs.append(env.render()) if render else None
+            
             if policy == 0:
                 state = obs_to_state(observation)
                 q_values = find_all_action_values(state[:2], state[2], state[3:5], state[5:], 0.99)
@@ -150,8 +150,8 @@ def get_dataset_from_config(config, policy=0, render=False, render_name="") -> t
             last_observation = observation
             observation, reward, terminated, truncated, info = env.step(action)
 
-            dataset['observations'].append(np.array(last_observation).flatten())
-            dataset['next_observations'].append(np.array(observation).flatten())
+            dataset['observations'].append(last_observation.flatten())
+            dataset['next_observations'].append(observation.flatten())
             dataset['actions'].append(np.array([action]))
             dataset['rewards'].append(reward)
             dataset['terminals'].append(terminated)
@@ -170,15 +170,20 @@ def get_dataset_from_config(config, policy=0, render=False, render_name="") -> t
     render_name = f"{render_name}" if render_name else f'rendered_episode_{"random" if policy else "expert"}'
     imageio.mimsave(f'rendered_episodes/{render_name}.gif', [np.array(img) for i, img in enumerate(imgs) if i%1 == 0], duration=200) if render else None
 
-    return dataset, env
+    return dataset, env, tasks_finished, tasks_failed
 
 
-def get_config(path):
+def get_config_isidoro(path):
     with open(path, 'rb') as file:
         train_config = dill.load(file)
     file.close()
     return train_config
 
+def get_config(config_data: str):
+    with open(f'../four_room/configs/fourrooms_{config_data}_config.pl', 'rb') as file:
+        train_config = dill.load(file)
+    file.close()
+    return train_config
 
 def get_expert_dataset_from_config(config, render=False, render_name=""):
     return get_dataset_from_config(config, policy=0, render=render, render_name=render_name)
@@ -188,3 +193,62 @@ def get_random_dataset_from_config(config, render=False, render_name=""):
 
 def get_suboptimal_dataset_from_config(config, render=False, render_name=""):
     return get_dataset_from_config(config, policy=2, render=render, render_name=render_name)
+
+def get_mixed_dataset_from_config(config, train_env, checkpoints):
+    return get_mixed_policy_dataset(config, train_env, checkpoints)
+    # return get_dataset_from_config(config, policy=3, render=render, render_name=render_name)
+
+
+def get_mixed_policy_dataset(config, train_env, checkpoints_list):
+    parent_dir = Path(os.getcwd()).parents[0]
+    checkpoints_path = os.path.join(parent_dir, 'four_room_extensions', 'DQN_models')
+    datasets = {'observations': [], 'next_observations': [], 'actions': [], 'rewards': [], 'terminals': [], 'timeouts': [], 'infos': []}
+    finished = 0
+    failed = 0
+    start = 0
+    configurations_per_policy = len(config["topologies"]) // len(checkpoints_list)
+    for checkpoint in os.listdir(checkpoints_path):
+        time_step = checkpoint[checkpoint.find('_')+1: checkpoint.find('.')]
+        if time_step in checkpoints_list and checkpoint.endswith('.zip'):
+            model = DQN.load(os.path.join(checkpoints_path, checkpoint), env=train_env)
+            # print(f"configuration {start}")
+
+            dataset = {'observations': [], 'next_observations': [], 'actions': [], 'rewards': [],
+                       'terminals': [], 'timeouts': [], 'infos': []}
+            tasks_finished = 0
+            tasks_failed = 0
+
+            for i in range(start, min(start + configurations_per_policy, len(config["topologies"]))):
+                state, _ = train_env.reset()
+                done = False
+                while not done:
+                    last_observation = state
+                    action, _ = model.predict(state)
+                    state, reward, terminated, truncated, info = train_env.step(action)
+
+                    dataset['observations'].append(np.array(last_observation).flatten())
+                    dataset['next_observations'].append(np.array(state).flatten())
+                    dataset['actions'].append(np.array([action]))
+                    dataset['rewards'].append(reward)
+                    dataset['terminals'].append(terminated)
+                    dataset['timeouts'].append(truncated)
+                    dataset['infos'].append(info)
+
+                    if terminated:
+                        tasks_finished += 1
+                    if truncated:
+                        tasks_failed += 1
+                    done = terminated or truncated
+
+            start += configurations_per_policy
+            finished += tasks_finished
+            failed += tasks_failed
+            print(f"Data policy: {time_step}, Num_transitions: {len(dataset['observations'])}")
+            for key in dataset:
+                dataset[key] = np.array(dataset[key])
+                datasets[key].extend(dataset[key])
+
+    for key in datasets:
+        datasets[key] = np.array(datasets[key])
+
+    return datasets, finished, failed
