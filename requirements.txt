@@ -1,8 +1,11 @@
 minigrid
-networkx
 dill
 d3rlpy
 gymnasium
 matplotlib
 scikit-learn
 imageio
+pyrallis
+stable-baselines3[extra]
+torch
+wandb
