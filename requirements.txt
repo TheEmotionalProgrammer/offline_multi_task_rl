@@ -8,3 +8,4 @@ imageio
 pyrallis
 stable-baselines3[extra]
 torch
+wandb

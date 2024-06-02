@@ -185,7 +185,8 @@ def get_config(config_type: str):
         config_tpye (str): The configuration type to load. Possible values: train, test_100, test_0
     """
 
-    with open(f'../four_room/configs/fourrooms_{config_type}_config.pl', 'rb') as file:
+    # with open(f'four_room/configs/fourrooms_{config_type}_config.pl', 'rb') as file:
+    with open(os.path.join(Path(__file__).resolve().parent.parent, "four_room", f'configs/fourrooms_{config_type}_config.pl'), 'rb') as file:
         train_config = dill.load(file)
     file.close()
     return train_config
