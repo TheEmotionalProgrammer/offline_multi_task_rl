@@ -54,22 +54,23 @@ def get_mixed_dataset_from_config(config, models=[300000, 350000, 390000, 450000
                 
                 action, _ = model.predict(observation)
 
-            last_observation = observation
-            observation, reward, terminated, truncated, info = env.step(action)
+                last_observation = observation
+                observation, reward, terminated, truncated, info = env.step(action)
 
-            dataset['observations'].append(np.array(last_observation).flatten())
-            dataset['next_observations'].append(np.array(observation).flatten())
-            dataset['actions'].append(np.array([action]))
-            dataset['rewards'].append(reward)
-            dataset['terminals'].append(terminated)
-            dataset['timeouts'].append(truncated)
-            dataset['infos'].append(info)
+                dataset['observations'].append(np.array(last_observation).flatten())
+                dataset['next_observations'].append(np.array(observation).flatten())
+                dataset['actions'].append(np.array([action]))
+                dataset['rewards'].append(reward)
+                dataset['terminals'].append(terminated)
+                dataset['timeouts'].append(truncated)
+                dataset['infos'].append(info)
 
-            if terminated:
-                tasks_finished += 1
-            if truncated:
-                tasks_failed += 1
-            done = terminated or truncated
+                if terminated:
+                    tasks_finished += 1
+                if truncated:
+                    tasks_failed += 1
+                done = terminated or truncated
+        print(f"progress: {idx+1}/{len(models)}")
 
     for key in dataset:
         dataset[key] = np.array(dataset[key])
