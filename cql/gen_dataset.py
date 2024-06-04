@@ -44,24 +44,15 @@ def get_mixed_dataset_from_config(config, models=[300000, 350000, 390000, 450000
                'terminals': [], 'timeouts': [], 'infos': []}
 
     imgs = []
-
-    model = DQN.load(f"four_room_extensions/DQN_models/DQN_{models[0]}.zip")
-    last_used_model = 0
-
-    for i in range(len(config["topologies"])):
-
-        model_index = i // (len(config["topologies"]) // len(models))
-        if model_index != last_used_model:
-            model = DQN.load(f"four_room_extensions/DQN_models/DQN_{models[model_index]}.zip")
-            last_used_model = model_index
-            print("last used model changed to: ", last_used_model)
-        
-        observation, _ = env.reset()
-        done = False
-        while not done:
-            imgs.append(env.render()) if render else None
-            
-            action, _ = model.predict(observation)
+    for idx, m in enumerate(models):
+        model = DQN.load(f"four_room_extensions/DQN_models/DQN_{m}.zip")
+        for i in range(len(config["topologies"])):
+            observation, _ = env.reset()
+            done = False
+            while not done:
+                imgs.append(env.render()) if render else None
+                
+                action, _ = model.predict(observation)
 
             last_observation = observation
             observation, reward, terminated, truncated, info = env.step(action)
