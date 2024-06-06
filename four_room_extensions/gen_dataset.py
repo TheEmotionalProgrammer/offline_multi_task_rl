@@ -87,16 +87,16 @@ if __name__ == "__main__":
     config = get_config("four_room/configs/fourrooms_train_config.pl")
     
     desired_episode_length = [  # TODO Add different trained models here here (0 is best model, 100 is worst model)
-        # [50],
-        # [25],
-        # [0],
-        # [0, 75],
-        # [0, 50],
-        # [25, 50],
-        # [0, 25],
-        # [0, 50, 100],
-        # [0, 25, 50],
-        # [0, 25, 50, 75],
+        [50],
+        [25],
+        [0],
+        [0, 75],
+        [0, 50],
+        [25, 50],
+        [0, 25],
+        [0, 50, 100],
+        [0, 25, 50],
+        [0, 25, 50, 75],
         [0, 25, 50, 75, 100],
     ]
     best_policy = False # TODO select from top 16 or not?
@@ -110,7 +110,7 @@ if __name__ == "__main__":
         dataset_path = "datasets/dataset_from_models_"
         Path(dataset_path).mkdir(parents=True, exist_ok=True)
         file_name_best_policy_extension = "_best_policies_only" if best_policy else ""
-        dataset_file_name = dataset_path + "/" + '_'.join(map(str, models)) + file_name_best_policy_extension + ".pkl"
+        dataset_file_name = dataset_path + "/" + str(models) + "--" + str(episode_length) + file_name_best_policy_extension + ".pkl"
         with open(dataset_file_name, 'wb') as f:
             pickle.dump(dataset, f)
 
