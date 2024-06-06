@@ -74,7 +74,7 @@ def get_DQN_checkpoints(path, episode_length=None, best_policy=False):
             selected_policies.append(min(checkpoints, key=lambda x: abs(x[1] - episode_length_goal)))   # select the closest number of steps to the percentage
         print(f"policies {sorted(orig_episode_length, reverse=True)}: {selected_policies}")
     # return a list of timesteps
-    return [timestep for timestep, b in selected_policies]
+    return [int(timestep) for timestep, b in selected_policies]
 
 
 def create_env(config):
