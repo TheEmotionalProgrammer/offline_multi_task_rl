@@ -215,7 +215,7 @@ def get_mixed_policy_dataset(config, train_env, checkpoints_list):
     configurations_per_policy = len(config["topologies"]) // len(checkpoints_list)
     for checkpoint in os.listdir(checkpoints_path):
         time_step = checkpoint[checkpoint.find('_')+1: checkpoint.find('.')]
-        if time_step in checkpoints_list and checkpoint.endswith('.zip'):
+        if checkpoint.endswith('.zip') and int(time_step) in checkpoints_list:
             model = DQN.load(os.path.join(checkpoints_path, checkpoint), env=train_env)
 
             dataset = {'observations': [], 'next_observations': [], 'actions': [], 'rewards': [],
