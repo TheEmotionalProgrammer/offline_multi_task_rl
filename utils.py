@@ -92,6 +92,6 @@ class ObservationFlattenerWrapper(Wrapper):
         obs, reward, terminated, truncated, info = self.env.step(action)
         return obs.flatten(), reward, terminated, truncated, info
     
-    def reset(self):
-        obs, info = self.env.reset()
+    def reset(self, seed=None):
+        obs, info = self.env.reset(seed=seed)
         return obs.flatten(), info
