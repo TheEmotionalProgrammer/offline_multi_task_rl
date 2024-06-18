@@ -123,17 +123,17 @@ if __name__ == "__main__":
 
     dqn_dir = os.path.abspath(os.path.join(__file__, "..", "..", "models"))
     model_paths = [
-        "real_expert",
+        # "real_expert",
         dqn_dir + "/DQN_models/DQN_500000",
-        dqn_dir + "/dqn_run_1_500k-700k/DQN_200000_steps",
-        dqn_dir + "/dqn_run_2_500k-700k/DQN_200000_steps",
-        dqn_dir + "/dqn_run_3_500k-700k/DQN_200000_steps",
-        # dqn_dir + "/dqn_run_4_500k-700k/DQN_200000_steps",
+        dqn_dir + "/dqn_models_seed_1/DQN_700000_steps",
+        dqn_dir + "/dqn_models_seed_2/DQN_700000_steps",
+        # dqn_dir + "/dqn_models_seed_3/DQN_700000_steps",
+        # dqn_dir + "/dqn_models_seed_4/DQN_700000_steps",
         # dqn_dir + "/DQN_models/DQN_390000",
-        # dqn_dir + "/DQN_models/DQN_330000",
-        # dqn_dir + "/DQN_models/DQN_110000",
+        dqn_dir + "/DQN_models/DQN_330000",
+        dqn_dir + "/DQN_models/DQN_110000",
     ]
-    dataset_name_extension = "real_expert_and_4_dqn_experts"
+    dataset_name_extension = "3_dqn_experts,330k,110k_0,0,0,50,75"
     dataset, env, tasks_failed, tasks_finished = get_mixed_dataset_from_config(config, model_paths, render=False)
     print(f"Tasks finished: {tasks_finished}, tasks failed: {tasks_failed}")
 
