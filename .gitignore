@@ -1,3 +1,7 @@
+*.zip
+*.d3
+rendered_episodes/
+d3rlpy_*/
 wandb/
 */wandb/
 */__pycache/
