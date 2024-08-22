@@ -1,0 +1,126 @@
+RUNS DT
+
+SEED: 42
+- [390000, 330000]--[25, 50].pkl: finished
+- [390000]--[25].pkl: finished
+- [470000, 110000]--[0, 75].pkl: finished
+- [470000, 330000]--[0, 50].pkl: finished
+- [470000, 330000, 10000]--[0, 50, 100].pkl: FAILING
+- [470000, 390000, 330000, 110000, 10000]--[0, 25, 50, 75, 100].pkl: FAILING
+- [470000, 390000, 330000, 110000]--[0, 25, 50, 75].pkl: finished
+- [470000, 390000, 330000]--[0, 25, 50].pkl: finished
+- [470000, 390000]--[0, 25].pkl: finished
+- [470000]--[0].pkl: finished
+- [330000]--[50].pkl: finished
+- 3_dqn_experts,330k,110k_0,0,0,50,75.pkl: 
+- 3_dqn_experts,390k,330k_0,0,0,25,50.pkl: 
+- 3_dqn_experts.pkl: running
+- 5_dqn_experts.pkl: running
+- real_expert_and_4_dqn_experts.pkl: running
+- real_expert_and_5_dqn_experts.pkl: running
+
+
+SEED: 43
+- [390000, 330000]--[25, 50].pkl: finished
+- [390000]--[25].pkl: finished
+- [470000, 110000]--[0, 75].pkl: finished
+- [470000, 330000]--[0, 50].pkl: finished
+- [470000, 330000, 10000]--[0, 50, 100].pkl: running
+- [470000, 390000, 330000, 110000, 10000]--[0, 25, 50, 75, 100].pkl: running
+- [470000, 390000, 330000, 110000]--[0, 25, 50, 75].pkl: finished
+- [470000, 390000, 330000]--[0, 25, 50].pkl: finished
+- [470000, 390000]--[0, 25].pkl: finished
+- [470000]--[0].pkl: finished
+- [330000]--[50].pkl: finished
+- 3_dqn_experts,330k,110k_0,0,0,50,75.pkl: 
+- 3_dqn_experts,390k,330k_0,0,0,25,50.pkl: 
+- 3_dqn_experts.pkl: 
+- 5_dqn_experts.pkl: 
+- real_expert_and_4_dqn_experts.pkl: 
+- real_expert_and_5_dqn_experts.pkl: 
+
+
+SEED: 44
+- [390000, 330000]--[25, 50].pkl: finished 
+- [390000]--[25].pkl: finished
+- [470000, 110000]--[0, 75].pkl: finished
+- [470000, 330000]--[0, 50].pkl: finished
+- [470000, 330000, 10000]--[0, 50, 100].pkl:
+- [470000, 390000, 330000, 110000, 10000]--[0, 25, 50, 75, 100].pkl:
+- [470000, 390000, 330000, 110000]--[0, 25, 50, 75].pkl: running
+- [470000, 390000, 330000]--[0, 25, 50].pkl: running
+- [470000, 390000]--[0, 25].pkl: running
+- [470000]--[0].pkl: running
+- [330000]--[50].pkl: running
+- 3_dqn_experts,330k,110k_0,0,0,50,75.pkl: 
+- 3_dqn_experts,390k,330k_0,0,0,25,50.pkl: 
+- 3_dqn_experts.pkl: 
+- 5_dqn_experts.pkl: 
+- real_expert_and_4_dqn_experts.pkl: 
+- real_expert_and_5_dqn_experts.pkl: 
+
+
+
+
+
+----- BC
+RUNS SAC+BC
+
+SEED: 42
+- [390000, 330000]--[25, 50].pkl:
+- [390000]--[25].pkl:
+- [470000, 110000]--[0, 75].pkl:
+- [470000, 330000]--[0, 50].pkl: finished
+- [470000, 330000, 10000]--[0, 50, 100].pkl:
+- [470000, 390000, 330000, 110000, 10000]--[0, 25, 50, 75, 100].pkl: finished
+- [470000, 390000, 330000, 110000]--[0, 25, 50, 75].pkl:
+- [470000, 390000, 330000]--[0, 25, 50].pkl:
+- [470000, 390000]--[0, 25].pkl:
+- [470000]--[0].pkl: finished
+- [330000]--[50].pkl:
+- 3_dqn_experts,330k,110k_0,0,0,50,75.pkl: 
+- 3_dqn_experts,390k,330k_0,0,0,25,50.pkl: 
+- 3_dqn_experts.pkl: 
+- 5_dqn_experts.pkl: 
+- real_expert_and_4_dqn_experts.pkl: 
+- real_expert_and_5_dqn_experts.pkl: 
+
+
+SEED: 43
+- [390000, 330000]--[25, 50].pkl:
+- [390000]--[25].pkl:
+- [470000, 110000]--[0, 75].pkl:
+- [470000, 330000]--[0, 50].pkl: finished
+- [470000, 330000, 10000]--[0, 50, 100].pkl:
+- [470000, 390000, 330000, 110000, 10000]--[0, 25, 50, 75, 100].pkl: finished
+- [470000, 390000, 330000, 110000]--[0, 25, 50, 75].pkl:
+- [470000, 390000, 330000]--[0, 25, 50].pkl:
+- [470000, 390000]--[0, 25].pkl:
+- [470000]--[0].pkl: finished
+- [330000]--[50].pkl:
+- 3_dqn_experts,330k,110k_0,0,0,50,75.pkl: 
+- 3_dqn_experts,390k,330k_0,0,0,25,50.pkl: 
+- 3_dqn_experts.pkl: 
+- 5_dqn_experts.pkl: 
+- real_expert_and_4_dqn_experts.pkl: 
+- real_expert_and_5_dqn_experts.pkl: 
+
+
+SEED: 44
+- [390000, 330000]--[25, 50].pkl:
+- [390000]--[25].pkl:
+- [470000, 110000]--[0, 75].pkl:
+- [470000, 330000]--[0, 50].pkl: finished
+- [470000, 330000, 10000]--[0, 50, 100].pkl:
+- [470000, 390000, 330000, 110000, 10000]--[0, 25, 50, 75, 100].pkl: finished
+- [470000, 390000, 330000, 110000]--[0, 25, 50, 75].pkl:
+- [470000, 390000, 330000]--[0, 25, 50].pkl:
+- [470000, 390000]--[0, 25].pkl:
+- [470000]--[0].pkl: finished
+- [330000]--[50].pkl:
+- 3_dqn_experts,330k,110k_0,0,0,50,75.pkl: 
+- 3_dqn_experts,390k,330k_0,0,0,25,50.pkl: 
+- 3_dqn_experts.pkl: 
+- 5_dqn_experts.pkl: 
+- real_expert_and_4_dqn_experts.pkl: 
+- real_expert_and_5_dqn_experts.pkl: 
